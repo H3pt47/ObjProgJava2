@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 
 import javax.swing.JPanel;
 
+import model.Wall;
 import model.World;
 
 /**
@@ -21,17 +22,23 @@ public class GraphicView extends JPanel implements View {
 
     private Dimension fieldDimension;
 
-    public GraphicView(int width, int height, Dimension fieldDimension) {
+    private World _world;
+
+    public GraphicView(int width, int height, Dimension fieldDimension, World world) {
         this.WIDTH = width;
         this.HEIGHT = height;
         this.fieldDimension = fieldDimension;
         this.bg = new Rectangle(WIDTH, HEIGHT);
+        this._world = world;
     }
 
     /** The background rectangle. */
     private final Rectangle bg;
     /** The rectangle we're moving. */
     private final Rectangle player = new Rectangle(1, 1);
+
+    /** The Wall */
+    private final Rectangle _wall = new Rectangle(1, 1);
 
     /**
      * Creates a new instance.
@@ -44,6 +51,12 @@ public class GraphicView extends JPanel implements View {
         // Paint player
         g.setColor(Color.BLACK);
         g.fillRect(player.x, player.y, player.width, player.height);
+
+        //PaintWalls
+        g.setColor(Color.GRAY);
+        for (Wall wall: _world.getWalls()){
+            g.fillRect(wall.x(), wall.y(), _wall.width, _wall.height);
+        }
     }
 
     @Override

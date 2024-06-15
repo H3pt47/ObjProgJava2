@@ -94,9 +94,11 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
                 break;
             case "Save Game":
                 //save game
+                //TODO SAVE GAME FUNCTIONALITY
                 break;
             case "Load Game":
                 //load game
+                //TODO LOAD GAME FUNCTIONALITY
                 break;
             case "Settings":
                 //settings

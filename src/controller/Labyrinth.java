@@ -1,11 +1,8 @@
 package controller;
 
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.*;
 
@@ -23,7 +20,8 @@ import view.GraphicView;
 public class Labyrinth {
 
     private static String TITEL;
-    private static int SCALE;
+    private static int SCALE_X;
+    private static int SCALE_Y;
     private static Boolean BORDERLESS;
     private static String LANGUAGE;
     private static int DIFFICULTY;
@@ -50,12 +48,13 @@ public class Labyrinth {
                 world = new World(_level1);
 
                 // Size of a field in the graphical view.
-                fieldDimensions = new Dimension(25, 25);
+                fieldDimensions = new Dimension(SCALE_X, SCALE_Y);
                 // Create and register graphical view.
                 gview = new GraphicView(
                         _level1.getLenX() * fieldDimensions.width,
                         _level1.getLenY() * fieldDimensions.height,
-                        fieldDimensions);
+                        fieldDimensions,
+                        world);
                 world.registerView(gview);
                 gview.setVisible(true);
 
@@ -135,7 +134,8 @@ public class Labyrinth {
 
     private static void paramSetup() {
         TITEL = "The lazy Labyrinth";
-        SCALE = 25;
+        SCALE_X = 25;
+        SCALE_Y = 25;
         DIFFICULTY = 0;
         BORDERLESS = false;
         LANGUAGE = "english";
@@ -153,8 +153,12 @@ public class Labyrinth {
         return LANGUAGE;
     }
 
-    public static int getSCALE(){
-        return SCALE;
+    public static int getSCALE_X(){
+        return SCALE_X;
+    }
+
+    public static int getSCALE_Y(){
+        return SCALE_Y;
     }
 
     public static Boolean getBORDERLESS(){

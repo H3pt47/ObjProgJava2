@@ -110,6 +110,14 @@ public class World {
         }
     }
 
+    /**
+     * Returns the walls in an ArrayList.
+     * @return The walls in an ArrayList
+     */
+    public ArrayList<Wall> getWalls() {
+        return _walls;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Player Management
 
