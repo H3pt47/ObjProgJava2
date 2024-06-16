@@ -20,7 +20,7 @@ public class World {
     /** The player's y position in the world. */
     private int _playerY;
 
-    private ArrayList<Wall> _walls;
+    private final ArrayList<Wall> _walls;
 
     /** Set of views registered to be notified of world updates. */
     private final ArrayList<View> views = new ArrayList<>();

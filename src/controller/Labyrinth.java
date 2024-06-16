@@ -56,14 +56,12 @@ public class Labyrinth {
                         fieldDimensions,
                         world);
                 world.registerView(gview);
-                gview.setVisible(true);
 
                 // Create and register console view.
                 cview = new ConsoleView();
                 world.registerView(cview);
 
                 // Register Keys
-
                 registerKeys();
 
                 // Create Main Menu
@@ -72,26 +70,10 @@ public class Labyrinth {
                 // Create controller and initialize JFrame.
                 setupController(world, gview, mainMenu);
 
-                gview.setVisible(false);
-                controller.getContentPane().add(gview);
+                //gview.setOffset(controller);
+                gview.setController(controller);
 
-                // pack() is needed before JFrame size can be calculated.
-                //controller.pack();
-
-
-                // Calculate size of window by size of insets (titlebar + border) and size of
-                // graphical view.
-                //Insets insets = controller.getInsets();
-                /*
-                int windowX = WIDTH * fieldDimensions.width + insets.left + insets.right;
-                int windowY = HEIGHT * fieldDimensions.height + insets.bottom + insets.top;
-                Dimension size = new Dimension(windowX, windowY);
-                controller.setSize(size);
-                controller.setMinimumSize(size);
-                */
                 controller.setVisible(true);
-
-
             }
         });
     }
@@ -112,7 +94,7 @@ public class Labyrinth {
         //display MainMenu on startup
         controller.showMainMenu();
 
-        //displays Mainmenu on startup / reload
+        //displays Main menu on startup / reload
         controller.setVisible(true);
     }
 
@@ -137,14 +119,14 @@ public class Labyrinth {
         SCALE_X = 25;
         SCALE_Y = 25;
         DIFFICULTY = 0;
-        BORDERLESS = false;
+        BORDERLESS = true;
         LANGUAGE = "english";
-        ArrayList<Wall> walls = new ArrayList<Wall>();
+        ArrayList<Wall> walls = new ArrayList<>();
         walls.add(new Wall(1,1));
         walls.add(new Wall(2,2));
         walls.add(new Wall(3,3));
         walls.add(new Wall(4,4));
-        _level1 = new Level(25, 25, "LEVEL1", walls, 0, 0);
+        _level1 = new Level(50, 30, "LEVEL1", walls, 0, 0);
     }
 
     /////////////////// GETTER AND SETTER METHODS ////////////////////////////////
@@ -189,4 +171,5 @@ public class Labyrinth {
         return _keys;
     }
 
+    //TODO multiple Screen
 }

@@ -1,5 +1,6 @@
 package view;
 
+import model.Wall;
 import model.World;
 
 /**
@@ -19,6 +20,8 @@ public class ConsoleView implements View {
                 // If the player is here, print #, otherwise print .
                 if (row == playerY && col == playerX) {
                     System.out.print("#");
+                } else if (world.getWalls().contains(new Wall(row, col))){
+                    System.out.print("W");
                 } else {
                     System.out.print(".");
                 }

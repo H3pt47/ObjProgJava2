@@ -6,14 +6,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.*;
 
 import GameWindow.*;
-import model.Direction;
 import model.World;
 import values.keyPresses;
 import view.GraphicView;
@@ -30,8 +29,12 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
     private GraphicView graphicView;
     private MainMenu mainMenu;
     private Settings settings;
+
     private CardLayout cards;
+    private Container mainContainer;
+
     private ArrayList<keyPresses> _keys;
+
     private InputMap _inputMapGame;
     private ActionMap _actionMapGame;
     /**
@@ -49,14 +52,21 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
         this.mainMenu = mMenu;
         this.settings = new Settings(this, this);
 
-        _keys = keys;
+        this._keys = keys;
 
         setupInputActionMap();
-
+        mainContainer = this.getContentPane();
         this.cards = new CardLayout();
-        this.getContentPane().setLayout(cards);
-        this.getContentPane().add("MENU", mainMenu.getMenuPanel());
-        this.getContentPane().add("GAME", gview);
+        this.mainContainer.setLayout(cards);
+        this.mainContainer.add("MENU", mainMenu.getMenuPanel());
+        this.mainContainer.add("GAME", graphicView);
+
+        //setup transparent Cursor for graphicView
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        BufferedImage cursorImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        Cursor transparentCursor = toolkit.createCustomCursor(cursorImage, new Point(0, 0), "InvisibleCursor");
+
+        graphicView.setCursor(transparentCursor);
 
         // Listen for key events
         addKeyListener(this);
@@ -147,36 +157,29 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
 
     }
 
+    /////////////////// HELPER METHODS ////////////////////////////////
+
     public void showMainMenu(){
-        graphicView.setVisible(false);
-        mainMenu.getMenuPanel().setVisible(true);
-        cards.show(this.getContentPane(), "MENU");
+        cards.show(mainContainer, "MENU");
     }
 
     public void showGame(){
-        mainMenu.getMenuPanel().setVisible(false);
-        graphicView.setVisible(true);
-        cards.show(this.getContentPane(), "GAME");
+        cards.show(mainContainer, "GAME");
     }
 
     private void handleSettings(){
         if (settings.getDifficulty1().isSelected()){
             Labyrinth.setDifficulty(0);
-        }
-        else if (settings.getDifficulty2().isSelected()){
+        } else if (settings.getDifficulty2().isSelected()){
             Labyrinth.setDifficulty(1);
-        }
-        else {
+        } else {
             Labyrinth.setDifficulty(2);
         }
-
         if (settings.getLanguage1().isSelected()){
             Labyrinth.setLANGUAGE("english");
-        }
-        else if (settings.getLanguage2().isSelected()){
+        } else if (settings.getLanguage2().isSelected()){
             Labyrinth.setLANGUAGE("german");
-        }
-        else {
+        } else {
             Labyrinth.setLANGUAGE("french");
         }
         Labyrinth.setBORDERLESS(settings.getScreenMode1().isSelected());
@@ -200,7 +203,5 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
                 }
             });
         });
-
-
     }
 }
