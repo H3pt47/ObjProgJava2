@@ -15,4 +15,6 @@ public interface View {
      */
     void update(World world);
 
+
+    void newLevel(World world);
 }

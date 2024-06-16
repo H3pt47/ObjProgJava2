@@ -22,7 +22,9 @@ public class ConsoleView implements View {
                     System.out.print("#");
                 } else if (world.getWalls().contains(new Wall(row, col))){
                     System.out.print("W");
-                } else {
+                } else if (col == world.getEndX() && row == world.getEndY()){
+                    System.out.print("T");
+                }else {
                     System.out.print(".");
                 }
             }
@@ -33,6 +35,11 @@ public class ConsoleView implements View {
 
         // A newline between every update
         System.out.println();
+    }
+
+    @Override
+    public void newLevel(World world) {
+        update(world);
     }
 
 }

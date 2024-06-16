@@ -14,6 +14,8 @@ public class Level {
     private final ArrayList<Wall> _walls;
     private final int _startX;
     private final int _startY;
+    private final int _endX;
+    private final int _endY;
 
     /**
      * Make a level. Yeah! It's just that easy..... Maybe not.
@@ -24,13 +26,15 @@ public class Level {
      * @param startX Starting coordinate for the player. It's of the X variety...
      * @param startY Starting coordinate for the player. It's of the Y variety...
      */
-    public Level(int lenX, int lenY, String name, ArrayList<Wall> walls, int startX, int startY) {
+    public Level(int lenX, int lenY, String name, ArrayList<Wall> walls, int startX, int startY, int endX, int endY) {
         _lenX = lenX;
         _lenY = lenY;
         _name = name;
         _walls = walls;
         _startX = startX;
         _startY = startY;
+        _endX = endX;
+        _endY = endY;
     }
 
     public int getLenX() {
@@ -51,4 +55,11 @@ public class Level {
     public int getStartY() {
         return _startY;
     }
+    public int getEndX() {
+        return _endX;
+    }
+    public int getEndY() {
+        return _endY;
+    }
+
 }

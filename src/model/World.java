@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 
+import controller.Labyrinth;
 import view.View;
 
 /**
@@ -12,15 +13,19 @@ import view.View;
 public class World {
 
     /** The world's width. */
-    private final int width;
+    private int width;
     /** The world's height. */
-    private final int height;
+    private int height;
     /** The player's x position in the world. */
     private int _playerX;
     /** The player's y position in the world. */
     private int _playerY;
 
-    private final ArrayList<Wall> _walls;
+    private int _endX;
+
+    private int _endY;
+
+    private ArrayList<Wall> _walls;
 
     /** Set of views registered to be notified of world updates. */
     private final ArrayList<View> views = new ArrayList<>();
@@ -38,6 +43,9 @@ public class World {
 
         this._playerX = level.getStartX();
         this._playerY = level.getStartY();
+
+        this._endX = level.getEndX();
+        this._endY = level.getEndY();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -118,6 +126,13 @@ public class World {
         return _walls;
     }
 
+    public int getEndX() {
+        return _endX;
+    }
+    public int getEndY() {
+        return _endY;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Player Management
 
@@ -154,6 +169,10 @@ public class World {
         for (View view : views) {
             view.update(this);
         }
+        //If end was reached
+        if (this._playerX == this._endX && this._playerY == this._endY) {
+            Labyrinth.loadNextLevel();
+        }
     }
 
     private boolean newPosCheck(int playerX, int playerY){
@@ -163,6 +182,21 @@ public class World {
             }
         }
         return true;
+    }
+
+    public void newLevel(Level level){
+        this.width = level.getLenX();
+        this.height = level.getLenY();
+        this._walls = level.getWalls();
+
+        this._playerX = level.getStartX();
+        this._playerY = level.getStartY();
+        this._endX = level.getEndX();
+        this._endY = level.getEndY();
+        for (View view : views) {
+            view.newLevel(this);
+        }
+        updateViews();
     }
 
 }

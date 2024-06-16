@@ -26,7 +26,8 @@ public class Labyrinth {
     private static String LANGUAGE;
     private static int DIFFICULTY;
 
-    private static Level _level1;
+    private static ArrayList<Level> _levels;
+    private static int _currentLevel;
 
     private static MainMenu mainMenu;
     private static World world;
@@ -45,14 +46,14 @@ public class Labyrinth {
                 paramSetup();
 
                 // Create a new game world.
-                world = new World(_level1);
+                world = new World(_levels.get(0));
 
                 // Size of a field in the graphical view.
                 fieldDimensions = new Dimension(SCALE_X, SCALE_Y);
                 // Create and register graphical view.
                 gview = new GraphicView(
-                        _level1.getLenX() * fieldDimensions.width,
-                        _level1.getLenY() * fieldDimensions.height,
+                        _levels.get(0).getLenX() * fieldDimensions.width,
+                        _levels.get(0).getLenY() * fieldDimensions.height,
                         fieldDimensions,
                         world);
                 world.registerView(gview);
@@ -119,6 +120,7 @@ public class Labyrinth {
         SCALE_X = 25;
         SCALE_Y = 25;
         DIFFICULTY = 0;
+        _currentLevel = 0;
         BORDERLESS = true;
         LANGUAGE = "english";
         ArrayList<Wall> walls = new ArrayList<>();
@@ -126,7 +128,25 @@ public class Labyrinth {
         walls.add(new Wall(2,2));
         walls.add(new Wall(3,3));
         walls.add(new Wall(4,4));
-        _level1 = new Level(50, 30, "LEVEL1", walls, 0, 0);
+        Level level1 = new Level(50, 30, "LEVEL1", walls, 0, 0, 30, 22);
+        Level level2 = new Level(10, 10, "LEVEL2", walls, 0, 0, 5, 5);
+        _levels = new ArrayList<>();
+        _levels.add(level1);
+        _levels.add(level2);
+    }
+
+    public static void loadLevel(int levelIndex){
+        world.newLevel(_levels.get(levelIndex));
+    }
+
+    public static void loadNextLevel(){
+        _currentLevel++;
+        if (_currentLevel < _levels.size()){
+            loadLevel(_currentLevel);
+        } else{
+            //TODO WIN SYSTEM
+            System.exit(0);
+        }
     }
 
     /////////////////// GETTER AND SETTER METHODS ////////////////////////////////
@@ -171,5 +191,5 @@ public class Labyrinth {
         return _keys;
     }
 
-    //TODO multiple Screen
+    //TODO multiple Screens
 }

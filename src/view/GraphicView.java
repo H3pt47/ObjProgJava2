@@ -15,9 +15,9 @@ import model.World;
 public class GraphicView extends JPanel implements View {
 
     /** The width of the level in pixels. */
-    private final int WIDTH;
+    private int WIDTH;
     /** The height of the level in pixels. */
-    private final int HEIGHT;
+    private int HEIGHT;
 
     /** Offset in Pixels, so the game is centered */
     private int _offSetX;
@@ -32,6 +32,8 @@ public class GraphicView extends JPanel implements View {
      * Basically how big the fields are stretched
      */
     private Dimension fieldDimension;
+
+    private Controller _controller;
 
     private World _world;
 
@@ -54,11 +56,20 @@ public class GraphicView extends JPanel implements View {
     }
 
     public void setController(Controller controller){
-        this.screenSizeX = controller.getGraphicsConfiguration().getBounds().width;
-        this.screenSizeY = controller.getGraphicsConfiguration().getBounds().height;
+        _controller = controller;
+        calcScreenSize();
+        repaint();
+    }
+
+    private void calcScreenSize(){
+        this.screenSizeX = _controller.getGraphicsConfiguration().getBounds().width;
+        this.screenSizeY = _controller.getGraphicsConfiguration().getBounds().height;
+        calcOffSet();
+    }
+
+    private void calcOffSet() {
         this._offSetX = (screenSizeX - this.WIDTH) / 2;
         this._offSetY = (screenSizeY - this.HEIGHT) / 2;
-        repaint();
     }
 
     /** The rectangle we're moving. */
@@ -75,34 +86,13 @@ public class GraphicView extends JPanel implements View {
         // Paint buffered background: Does it only at the first update or when some parameter changes,
         // then it loads it out of memory, to save some resources
         if (backGround == null || backGround.getWidth() != this.screenSizeX || backGround.getHeight() != this.screenSizeY) {
-            backGround = new BufferedImage(screenSizeX, screenSizeY, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2d = backGround.createGraphics();
-            //Paint Black BackGround
-            g2d.setColor(Color.BLACK);
-            g2d.fillRect(0, 0, screenSizeX, screenSizeY);
-            //PaintWalls
-            g2d.setColor(Color.GRAY);
-            for (Wall wall: _world.getWalls()){
-                g2d.fillRect(
-                        wall.x() * fieldDimension.width + _offSetX,
-                        wall.y() * fieldDimension.height + _offSetY,
-                        _wall.width,
-                        _wall.height);
-            }
-            //paint the Frame
-            paintTheFrame(g2d);
-            //dispose to save resources
-            g2d.dispose();
+            drawBackGround();
         }
         g.drawImage(backGround, 0, 0, screenSizeX, screenSizeY, null);
-        //g.setColor(Color.BLACK);
-        //g.fillRect(bg.x, bg.y, bg.width, bg.height);
 
         // Paint player
         g.setColor(Color.WHITE);
         g.fillRect(player.x + _offSetX, player.y + _offSetY, player.width, player.height);
-
-
     }
 
     @Override
@@ -114,6 +104,15 @@ public class GraphicView extends JPanel implements View {
                 (int) (world.getPlayerY() * fieldDimension.height)
         );
         repaint();
+    }
+
+    @Override
+    public void newLevel(World world) {
+        this.WIDTH = world.getWidth() * fieldDimension.width;
+        this.HEIGHT = world.getHeight() * fieldDimension.height;
+        calcOffSet();
+        drawBackGround();
+        update(world);
     }
 
     private void paintTheFrame(Graphics2D g) {
@@ -130,6 +129,30 @@ public class GraphicView extends JPanel implements View {
             //BORDER RIGHT
             g.fillRect((_offSetX + (fieldDimension.width * _world.getWidth())), ((i * fieldDimension.height) + _offSetY), fieldDimension.width, fieldDimension.height);
         }
+    }
+
+    private void drawBackGround() {
+        backGround = new BufferedImage(screenSizeX, screenSizeY, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = backGround.createGraphics();
+        //Paint Black BackGround
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(0, 0, screenSizeX, screenSizeY);
+        //PaintWalls
+        g2d.setColor(Color.GRAY);
+        for (Wall wall: _world.getWalls()){
+            g2d.fillRect(
+                    wall.x() * fieldDimension.width + _offSetX,
+                    wall.y() * fieldDimension.height + _offSetY,
+                    _wall.width,
+                    _wall.height);
+        }
+        //paint the End field
+        g2d.setColor(Color.GREEN);
+        g2d.fillRect(_world.getEndX() * fieldDimension.width + _offSetX, _world.getEndY() * fieldDimension.height + _offSetY, fieldDimension.width, fieldDimension.height);
+        //paint the Frame
+        paintTheFrame(g2d);
+        //dispose to save resources
+        g2d.dispose();
     }
 
 
