@@ -9,6 +9,8 @@ import javax.swing.*;
 import GameWindow.*;
 import model.Direction;
 import model.*;
+import model.Enemies.Enemies;
+import model.Enemies.Randemy;
 import values.keyPresses;
 import view.ConsoleView;
 import view.GraphicView;
@@ -128,8 +130,15 @@ public class Labyrinth {
         walls.add(new Wall(2,2));
         walls.add(new Wall(3,3));
         walls.add(new Wall(4,4));
-        Level level1 = new Level(50, 30, "LEVEL1", walls, 0, 0, 30, 22);
-        Level level2 = new Level(10, 10, "LEVEL2", walls, 0, 0, 5, 5);
+
+        ArrayList<Enemies> enemies1 = new ArrayList<>();
+        enemies1.add(new Randemy(0, 7, true));
+        enemies1.add(new Randemy(1, 7, true));
+        ArrayList<Enemies> enemies2 = new ArrayList<>();
+        enemies2.add(new Randemy(2, 7, true));
+
+        Level level1 = new Level(50, 30, "LEVEL1", walls, 0, 0, 30, 22, enemies1);
+        Level level2 = new Level(10, 10, "LEVEL2", walls, 0, 0, 5, 5, enemies2);
         _levels = new ArrayList<>();
         _levels.add(level1);
         _levels.add(level2);

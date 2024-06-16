@@ -3,6 +3,7 @@ package model;
 import java.util.ArrayList;
 
 import controller.Labyrinth;
+import model.Enemies.Enemies;
 import view.View;
 
 /**
@@ -21,6 +22,8 @@ public class World {
     /** The player's y position in the world. */
     private int _playerY;
 
+    private Direction _playerDirection;
+
     private int _endX;
 
     private int _endY;
@@ -29,6 +32,10 @@ public class World {
 
     /** Set of views registered to be notified of world updates. */
     private final ArrayList<View> views = new ArrayList<>();
+
+    private Level _level;
+
+    private ArrayList<Enemies> _enemies;
 
     /**
      * Creates a new world with the given size.t
@@ -44,8 +51,14 @@ public class World {
         this._playerX = level.getStartX();
         this._playerY = level.getStartY();
 
+        this._playerDirection = Direction.NONE;
+
         this._endX = level.getEndX();
         this._endY = level.getEndY();
+
+        this._level = level;
+
+        this._enemies = level.getEnemies();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -88,9 +101,8 @@ public class World {
         playerX = Math.max(0, playerX);
         playerX = Math.min(getWidth() - 1, playerX);
         //check for valid position e.g. no wall
-        if(newPosCheck(playerX, _playerY)){
+        if(!wallChecker(playerX, _playerY)){
             this._playerX = playerX;
-            updateViews();
         }
 
     }
@@ -112,10 +124,13 @@ public class World {
     public void setPlayerY(int playerY) {
         playerY = Math.max(0, playerY);
         playerY = Math.min(getHeight() - 1, playerY);
-        if(newPosCheck(_playerX, playerY)){
+        if(!wallChecker(_playerX, playerY)){
             this._playerY = playerY;
-            updateViews();
         }
+    }
+
+    public Direction getPlayerDirection() {
+        return _playerDirection;
     }
 
     /**
@@ -133,6 +148,10 @@ public class World {
         return _endY;
     }
 
+    public ArrayList<Enemies> getEnemies() {
+        return _enemies;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Player Management
 
@@ -144,8 +163,14 @@ public class World {
     public void movePlayer(Direction direction) {
         // The direction tells us exactly how much we need to move along
         // every direction
+        _playerDirection = direction;
         setPlayerX(getPlayerX() + direction.deltaX);
         setPlayerY(getPlayerY() + direction.deltaY);
+        if(enemyChecker(_playerX, _playerY)){
+            levelReset();
+        }
+        moveEnemies();
+        updateViews();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -175,16 +200,30 @@ public class World {
         }
     }
 
-    private boolean newPosCheck(int playerX, int playerY){
-        for (Wall wall : _walls) {
-            if (wall.x() == playerX && wall.y() == playerY){
-                return false;
+    public boolean enemyChecker(int X, int Y){
+        for (Enemies e: _enemies){
+            if (e.getX() == X && e.getY() == Y){
+                return true;
             }
         }
-        return true;
+        return false;
+    }
+
+    public boolean wallChecker(int X, int Y){
+        return (_walls.contains(new Wall(X, Y)));
+    }
+
+    public boolean boundsChecker(int X, int Y){
+        return (X >= 0 && Y >= 0 && X < width && Y < height);
+    }
+
+    public boolean posCheckEnemies(int X, int Y){
+        return (!wallChecker(X,Y) && boundsChecker(X,Y) && !enemyChecker(X,Y));
     }
 
     public void newLevel(Level level){
+        this._level = level;
+
         this.width = level.getLenX();
         this.height = level.getLenY();
         this._walls = level.getWalls();
@@ -193,10 +232,26 @@ public class World {
         this._playerY = level.getStartY();
         this._endX = level.getEndX();
         this._endY = level.getEndY();
+        this._enemies = level.getEnemies();
         for (View view : views) {
             view.newLevel(this);
         }
         updateViews();
     }
 
+    public void levelReset(){
+        _playerDirection = Direction.NONE;
+        _playerX = _level.getStartX();
+        _playerY = _level.getStartY();
+        for(Enemies enemy: this._enemies){
+            enemy.reset();
+        }
+        updateViews();
+    }
+
+    private void moveEnemies() {
+        for(Enemies e: this._enemies){
+            e.update(this);
+        }
+    }
 }

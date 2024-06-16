@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import controller.Controller;
+import model.Enemies.Enemies;
 import model.Wall;
 import model.World;
 
@@ -88,11 +89,13 @@ public class GraphicView extends JPanel implements View {
         if (backGround == null || backGround.getWidth() != this.screenSizeX || backGround.getHeight() != this.screenSizeY) {
             drawBackGround();
         }
+        //actually drawing the background
         g.drawImage(backGround, 0, 0, screenSizeX, screenSizeY, null);
 
-        // Paint player
-        g.setColor(Color.WHITE);
-        g.fillRect(player.x + _offSetX, player.y + _offSetY, player.width, player.height);
+        drawEnemies(g);
+
+        // draw player
+        drawThePlayer(g);
     }
 
     @Override
@@ -116,44 +119,76 @@ public class GraphicView extends JPanel implements View {
     }
 
     private void paintTheFrame(Graphics2D g) {
-        g.setColor(Color.LIGHT_GRAY);
         for (int i = 0; i < _world.getWidth() + 2; i++) {
             //BORDER TOP
-            g.fillRect(((i - 1) * fieldDimension.width + _offSetX), (_offSetY - fieldDimension.height), fieldDimension.width, fieldDimension.height);
+            drawWall(g, ((i - 1) * fieldDimension.width + _offSetX), (_offSetY - fieldDimension.height), fieldDimension.width, fieldDimension.height);
             //BORDER BOTTOM
-            g.fillRect(((i - 1) * fieldDimension.width + _offSetX), (_offSetY + (fieldDimension.height * (_world.getHeight()))), fieldDimension.width, fieldDimension.height);
+            drawWall(g, ((i - 1) * fieldDimension.width + _offSetX), (_offSetY + (fieldDimension.height * (_world.getHeight()))), fieldDimension.width, fieldDimension.height);
         }
         for (int i = 0; i < _world.getHeight(); i++) {
             //BORDER LEFT
-            g.fillRect(_offSetX - fieldDimension.width, ((i * fieldDimension.height) + _offSetY), fieldDimension.width, fieldDimension.height);
+            drawWall(g, _offSetX - fieldDimension.width, ((i * fieldDimension.height) + _offSetY), fieldDimension.width, fieldDimension.height);
             //BORDER RIGHT
-            g.fillRect((_offSetX + (fieldDimension.width * _world.getWidth())), ((i * fieldDimension.height) + _offSetY), fieldDimension.width, fieldDimension.height);
+            drawWall(g, (_offSetX + (fieldDimension.width * _world.getWidth())), ((i * fieldDimension.height) + _offSetY), fieldDimension.width, fieldDimension.height);
         }
     }
 
     private void drawBackGround() {
         backGround = new BufferedImage(screenSizeX, screenSizeY, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = backGround.createGraphics();
+
         //Paint Black BackGround
         g2d.setColor(Color.BLACK);
         g2d.fillRect(0, 0, screenSizeX, screenSizeY);
+
         //PaintWalls
-        g2d.setColor(Color.GRAY);
         for (Wall wall: _world.getWalls()){
-            g2d.fillRect(
-                    wall.x() * fieldDimension.width + _offSetX,
+            drawWall(g2d, wall.x() * fieldDimension.width + _offSetX,
                     wall.y() * fieldDimension.height + _offSetY,
                     _wall.width,
                     _wall.height);
         }
-        //paint the End field
-        g2d.setColor(Color.GREEN);
-        g2d.fillRect(_world.getEndX() * fieldDimension.width + _offSetX, _world.getEndY() * fieldDimension.height + _offSetY, fieldDimension.width, fieldDimension.height);
+
         //paint the Frame
         paintTheFrame(g2d);
+
+        //paint the End field
+        drawEndField(g2d, _world.getEndX() * fieldDimension.width + _offSetX, _world.getEndY() * fieldDimension.height + _offSetY, fieldDimension.width, fieldDimension.height);
+
         //dispose to save resources
         g2d.dispose();
     }
 
+    private void drawThePlayer(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.fillRect(player.x + _offSetX, player.y + _offSetY, player.width, player.height);
+        g.setColor(Color.RED);
+        g.drawLine(player.x + _offSetX + (player.width/2),
+                player.y  + _offSetY + (player.height/2),
+                player.x + _offSetX + ((player.width + _world.getPlayerDirection().deltaX * fieldDimension.width)/2),
+                player.y  + _offSetY + ((player.height + _world.getPlayerDirection().deltaY * fieldDimension.height)/2));
+    }
 
+    private void drawWall(Graphics2D g2d, int posX, int posY, int width, int height){
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.fillRect(posX, posY, width, height);
+        g2d.setColor(Color.GRAY);
+        g2d.drawRect(posX, posY, width, height);
+    }
+
+    private void drawEndField(Graphics2D g2d, int posX, int posY, int width, int height){
+        g2d.setColor(Color.GREEN);
+        g2d.drawRect(posX, posY, width, height);
+    }
+
+    private void drawEnemies(Graphics g) {
+        for (Enemies e: _world.getEnemies()){
+            drawEnemy(g, e.getX() * fieldDimension.width + _offSetX, e.getY() * fieldDimension.height + _offSetY, fieldDimension.width, fieldDimension.height, e);
+        }
+    }
+
+    private void drawEnemy(Graphics g, int posX, int posY, int width, int height, Enemies e){
+        g.setColor(Color.RED);
+        g.drawRect(posX, posY, width, height);
+    }
 }

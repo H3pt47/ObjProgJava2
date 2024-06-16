@@ -1,7 +1,10 @@
 package view;
 
+import model.Enemies.Enemies;
 import model.Wall;
 import model.World;
+
+import java.util.ArrayList;
 
 /**
  * A view that prints the current state of the world to the console upon every
@@ -24,6 +27,8 @@ public class ConsoleView implements View {
                     System.out.print("W");
                 } else if (col == world.getEndX() && row == world.getEndY()){
                     System.out.print("T");
+                }else if (isEnemy(world.getEnemies(), col, row)){
+                    System.out.print("E");
                 }else {
                     System.out.print(".");
                 }
@@ -40,6 +45,15 @@ public class ConsoleView implements View {
     @Override
     public void newLevel(World world) {
         update(world);
+    }
+
+    private Boolean isEnemy(ArrayList<Enemies> enemies, int x, int y){
+        for (Enemies e : enemies) {
+            if (e.getX() == x && e.getY() == y){
+                return true;
+            }
+        }
+        return false;
     }
 
 }

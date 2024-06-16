@@ -61,7 +61,7 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
         this.mainContainer.add("MENU", mainMenu.getMenuPanel());
         this.mainContainer.add("GAME", graphicView);
 
-        //setup transparent Cursor for graphicView
+        //setup transparent / invisible Cursor for graphicView
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         BufferedImage cursorImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Cursor transparentCursor = toolkit.createCustomCursor(cursorImage, new Point(0, 0), "InvisibleCursor");

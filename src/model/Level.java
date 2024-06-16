@@ -1,5 +1,7 @@
 package model;
 
+import model.Enemies.Enemies;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -17,6 +19,8 @@ public class Level {
     private final int _endX;
     private final int _endY;
 
+    private final ArrayList<Enemies> _enemies;
+
     /**
      * Make a level. Yeah! It's just that easy..... Maybe not.
      * @param lenX the length of the game board in the X-axis
@@ -25,8 +29,11 @@ public class Level {
      * @param walls An ArrayList, that contains all the Walls. It is not checked, if theses are valid, so beware.
      * @param startX Starting coordinate for the player. It's of the X variety...
      * @param startY Starting coordinate for the player. It's of the Y variety...
+     * @param endX X coordinate for the end point
+     * @param endY Y coordinate for the end point
+     * @param enemies an ArrayList containing all the enemies
      */
-    public Level(int lenX, int lenY, String name, ArrayList<Wall> walls, int startX, int startY, int endX, int endY) {
+    public Level(int lenX, int lenY, String name, ArrayList<Wall> walls, int startX, int startY, int endX, int endY, ArrayList<Enemies> enemies) {
         _lenX = lenX;
         _lenY = lenY;
         _name = name;
@@ -35,6 +42,7 @@ public class Level {
         _startY = startY;
         _endX = endX;
         _endY = endY;
+        _enemies = enemies;
     }
 
     public int getLenX() {
@@ -60,6 +68,9 @@ public class Level {
     }
     public int getEndY() {
         return _endY;
+    }
+    public ArrayList<Enemies> getEnemies() {
+        return _enemies;
     }
 
 }
