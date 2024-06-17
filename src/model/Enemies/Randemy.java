@@ -3,7 +3,6 @@ package model.Enemies;
 import model.Direction;
 import model.World;
 
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Randemy implements Enemies{
