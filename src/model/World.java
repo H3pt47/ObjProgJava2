@@ -101,7 +101,7 @@ public class World {
         playerX = Math.max(0, playerX);
         playerX = Math.min(getWidth() - 1, playerX);
         //check for valid position e.g. no wall
-        if(!wallChecker(playerX, _playerY)){
+        if(noWallChecker(playerX, _playerY)){
             this._playerX = playerX;
         }
 
@@ -124,7 +124,7 @@ public class World {
     public void setPlayerY(int playerY) {
         playerY = Math.max(0, playerY);
         playerY = Math.min(getHeight() - 1, playerY);
-        if(!wallChecker(_playerX, playerY)){
+        if(noWallChecker(_playerX, playerY)){
             this._playerY = playerY;
         }
     }
@@ -209,8 +209,8 @@ public class World {
         return false;
     }
 
-    public boolean wallChecker(int X, int Y){
-        return (_walls.contains(new Wall(X, Y)));
+    public boolean noWallChecker(int X, int Y){
+        return (!_walls.contains(new Wall(X, Y)));
     }
 
     public boolean boundsChecker(int X, int Y){
@@ -218,7 +218,7 @@ public class World {
     }
 
     public boolean posCheckEnemies(int X, int Y){
-        return (!wallChecker(X,Y) && boundsChecker(X,Y) && !enemyChecker(X,Y));
+        return (noWallChecker(X,Y) && boundsChecker(X,Y) && !enemyChecker(X,Y));
     }
 
     public void newLevel(Level level){
