@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="GameWindow.Settings">
+  <grid id="27dc6" binding="panel" layout-manager="GridLayoutManager" row-count="7" column-count="7" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="570" height="400"/>
+    </constraints>
+    <properties>
+      <background color="-16777216"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <component id="c09a" class="javax.swing.JLabel" binding="titelText1">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="5" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="20" style="1"/>
+          <foreground color="-1"/>
+          <text value="Settings"/>
+        </properties>
+      </component>
+      <component id="26b79" class="javax.swing.JButton" binding="confirm">
+        <constraints>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false">
+            <minimum-size width="200" height="30"/>
+            <preferred-size width="200" height="30"/>
+            <maximum-size width="200" height="30"/>
+          </grid>
+        </constraints>
+        <properties>
+          <background color="-8781813"/>
+          <borderPainted value="true"/>
+          <focusPainted value="false"/>
+          <focusable value="true"/>
+          <font name="MS Gothic" size="16" style="1"/>
+          <foreground color="-1"/>
+          <hideActionText value="false"/>
+          <text value="Confirm"/>
+        </properties>
+      </component>
+      <component id="22837" class="javax.swing.JButton" binding="cancel">
+        <constraints>
+          <grid row="5" column="2" row-span="1" col-span="4" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false">
+            <minimum-size width="200" height="30"/>
+            <preferred-size width="200" height="30"/>
+            <maximum-size width="200" height="30"/>
+          </grid>
+        </constraints>
+        <properties>
+          <background color="-8781813"/>
+          <borderPainted value="true"/>
+          <focusPainted value="false"/>
+          <focusable value="true"/>
+          <font name="MS Gothic" size="16" style="1"/>
+          <foreground color="-1"/>
+          <hideActionText value="false"/>
+          <text value="Cancel"/>
+        </properties>
+      </component>
+      <component id="a8d01" class="javax.swing.JLabel" binding="difficulty">
+        <constraints>
+          <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="20" style="1"/>
+          <foreground color="-1"/>
+          <text value="Diffuculty"/>
+        </properties>
+      </component>
+      <component id="e70bd" class="javax.swing.JRadioButton" binding="difficulty_1">
+        <constraints>
+          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="12" style="1"/>
+          <foreground color="-8781813"/>
+          <text value="Easy"/>
+        </properties>
+      </component>
+      <component id="2f0dc" class="javax.swing.JRadioButton" binding="difficulty_2">
+        <constraints>
+          <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="12" style="1"/>
+          <foreground color="-8781813"/>
+          <text value="Medium"/>
+        </properties>
+      </component>
+      <component id="87532" class="javax.swing.JRadioButton" binding="difficulty_3">
+        <constraints>
+          <grid row="2" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="12" style="1"/>
+          <foreground color="-8781813"/>
+          <text value="Hard"/>
+        </properties>
+      </component>
+      <component id="b46e0" class="javax.swing.JLabel" binding="language">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="20" style="1"/>
+          <foreground color="-1"/>
+          <text value="Language"/>
+        </properties>
+      </component>
+      <component id="81b2" class="javax.swing.JRadioButton" binding="english">
+        <constraints>
+          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="12" style="1"/>
+          <foreground color="-8781813"/>
+          <text value="English"/>
+        </properties>
+      </component>
+      <component id="2166f" class="javax.swing.JRadioButton" binding="german">
+        <constraints>
+          <grid row="3" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="12" style="1"/>
+          <foreground color="-8781813"/>
+          <text value="Deutsch"/>
+        </properties>
+      </component>
+      <component id="42a0d" class="javax.swing.JRadioButton" binding="french">
+        <constraints>
+          <grid row="3" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="12" style="1"/>
+          <foreground color="-8781813"/>
+          <text value="Français"/>
+        </properties>
+      </component>
+      <component id="dd8f6" class="javax.swing.JLabel" binding="screenMode">
+        <constraints>
+          <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="20" style="1"/>
+          <foreground color="-1"/>
+          <text value="Screen Mode"/>
+        </properties>
+      </component>
+      <component id="f00e5" class="javax.swing.JRadioButton" binding="fullscreen">
+        <constraints>
+          <grid row="4" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="12" style="1"/>
+          <foreground color="-8781813"/>
+          <text value="Fullscreen"/>
+        </properties>
+      </component>
+      <component id="544f7" class="javax.swing.JRadioButton" binding="windowed">
+        <constraints>
+          <grid row="4" column="4" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <background color="-16777216"/>
+          <font name="MS Gothic" size="12" style="1"/>
+          <foreground color="-8781813"/>
+          <text value="Windowed"/>
+        </properties>
+      </component>
+      <hspacer id="d134e">
+        <constraints>
+          <grid row="1" column="6" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <hspacer id="1ab3a">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </hspacer>
+      <vspacer id="e61c3">
+        <constraints>
+          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+      <vspacer id="fa0b0">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
+    </children>
+  </grid>
+</form>
