@@ -58,7 +58,7 @@ public class World {
 
         this._level = level;
 
-        this._enemies = level.getEnemies();
+        this._enemies = new ArrayList<>(level.getEnemies());
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -232,7 +232,7 @@ public class World {
         this._playerY = level.getStartY();
         this._endX = level.getEndX();
         this._endY = level.getEndY();
-        this._enemies = level.getEnemies();
+        this._enemies = new ArrayList<>(level.getEnemies());
         for (View view : views) {
             view.newLevel(this);
         }
@@ -243,9 +243,8 @@ public class World {
         _playerDirection = Direction.NONE;
         _playerX = _level.getStartX();
         _playerY = _level.getStartY();
-        for(Enemies enemy: this._enemies){
-            enemy.reset();
-        }
+        _enemies = new ArrayList<>(_level.getEnemies());
+        _enemies.forEach(Enemies::reset);
         updateViews();
     }
 
@@ -253,5 +252,10 @@ public class World {
         for(Enemies e: this._enemies){
             e.update(this);
         }
+    }
+
+    public void newEnemy(Enemies e){
+        this._enemies.add(e);
+        updateViews();
     }
 }

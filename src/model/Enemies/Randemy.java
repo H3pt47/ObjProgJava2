@@ -7,6 +7,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Randemy implements Enemies{
 
+    private static final int multChance = 50;
+
     private int _X;
     private int _Y;
 
@@ -14,16 +16,18 @@ public class Randemy implements Enemies{
     private final int _startY;
 
     private boolean _activated;
+    private boolean _dead;
 
     private Direction _direction;
 
-    public Randemy (int x, int y, Boolean activated){
+    public Randemy (int x, int y, Boolean activated, Boolean dead){
         _X = x;
         _Y = y;
         _startX = x;
         _startY = y;
         _direction = Direction.NONE;
         _activated = activated;
+        _dead = dead;
     }
 
     @Override
@@ -31,6 +35,7 @@ public class Randemy implements Enemies{
         if(_activated){
             _direction = Direction.NONE;
             int i = ThreadLocalRandom.current().nextInt(0, 5);
+            int j = ThreadLocalRandom.current().nextInt(0, multChance);
             switch(i){
                 case 0:
                     _direction = Direction.NONE;
@@ -51,6 +56,9 @@ public class Randemy implements Enemies{
             if(world.posCheckEnemies(_X + _direction.deltaX, _Y + _direction.deltaY)){
                 _X += _direction.deltaX;
                 _Y += _direction.deltaY;
+                if (j == 0){
+                    world.newEnemy(new Randemy(_X - _direction.deltaX, _Y - _direction.deltaY, true, false));
+                }
             }
             if(_X == world.getPlayerX() && _Y == world.getPlayerY()){
                 world.levelReset();
@@ -76,6 +84,11 @@ public class Randemy implements Enemies{
     @Override
     public Direction getDirection(){
         return _direction;
+    }
+
+    @Override
+    public Boolean isDead(){
+        return _dead;
     }
 
     public Boolean isActivated(){

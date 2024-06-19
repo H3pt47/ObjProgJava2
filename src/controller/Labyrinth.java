@@ -132,10 +132,10 @@ public class Labyrinth {
         walls.add(new Wall(4,4));
 
         ArrayList<Enemies> enemies1 = new ArrayList<>();
-        enemies1.add(new Randemy(0, 7, true));
-        enemies1.add(new Randemy(1, 7, true));
+        enemies1.add(new Randemy(0, 7, true, false));
+        enemies1.add(new Randemy(1, 7, true, false));
         ArrayList<Enemies> enemies2 = new ArrayList<>();
-        enemies2.add(new Randemy(2, 7, true));
+        enemies2.add(new Randemy(2, 7, true, false));
 
         Level level1 = new Level(50, 30, "LEVEL1", walls, 0, 0, 30, 22, enemies1);
         Level level2 = new Level(10, 10, "LEVEL2", walls, 0, 0, 5, 5, enemies2);

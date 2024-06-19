@@ -15,4 +15,6 @@ public interface Enemies {
 
     Direction getDirection();
 
+    Boolean isDead();
+
 }
