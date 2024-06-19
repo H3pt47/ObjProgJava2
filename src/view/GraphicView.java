@@ -173,7 +173,7 @@ public class GraphicView extends JPanel implements View {
         g2d.setColor(Color.LIGHT_GRAY);
         g2d.fillRect(posX, posY, width, height);
         g2d.setColor(Color.GRAY);
-        g2d.drawRect(posX, posY, width, height);
+        g2d.drawRect(posX, posY, width - 1, height - 1);
     }
 
     private void drawEndField(Graphics2D g2d, int posX, int posY, int width, int height){
