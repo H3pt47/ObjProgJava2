@@ -1,8 +1,7 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import controller.Labyrinth;
 import model.Enemies.Enemies;
@@ -37,10 +36,15 @@ public class World {
 
     private Level _level;
 
-    private ArrayList<Enemies> _enemies;
+    private List<Enemies> _enemies;
+
+    private Boolean _userInputEnabled;
+
+    //timing management
+    private static final int DELAY = 100;
 
     /**
-     * Creates a new world with the given size.t
+     * Creates a new world with the given level.
      */
     public World(Level level) {
         // Normally, we would check the arguments for proper values
@@ -60,7 +64,9 @@ public class World {
 
         this._level = level;
 
-        this._enemies = new ArrayList<>(level.getEnemies());
+        this._enemies = new CopyOnWriteArrayList<>(level.getEnemies());
+
+        this._userInputEnabled = true;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -150,7 +156,7 @@ public class World {
         return _endY;
     }
 
-    public ArrayList<Enemies> getEnemies() {
+    public List<Enemies> getEnemies() {
         return _enemies;
     }
 
@@ -163,16 +169,24 @@ public class World {
      * @param direction where to move.
      */
     public void movePlayer(Direction direction) {
-        // The direction tells us exactly how much we need to move along
-        // every direction
-        _playerDirection = direction;
-        setPlayerX(getPlayerX() + direction.deltaX);
-        setPlayerY(getPlayerY() + direction.deltaY);
-        if(enemyChecker(_playerX, _playerY)){
-            levelReset();
+        if (_userInputEnabled){
+            _userInputEnabled = false;
+            // The direction tells us exactly how much we need to move along
+            // every direction
+            _playerDirection = direction;
+            setPlayerX(getPlayerX() + direction.deltaX);
+            setPlayerY(getPlayerY() + direction.deltaY);
+            if(enemyChecker(_playerX, _playerY)){
+                levelReset();
+            }
+            moveEnemies();
+            updateViews();
+            _userInputEnabled = true;
         }
-        moveEnemies();
-        updateViews();
+        else{
+            _playerDirection = direction;
+        }
+
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -234,7 +248,7 @@ public class World {
         this._playerY = level.getStartY();
         this._endX = level.getEndX();
         this._endY = level.getEndY();
-        this._enemies = new ArrayList<>(level.getEnemies());
+        this._enemies = new CopyOnWriteArrayList<>(level.getEnemies());
         for (View view : views) {
             view.newLevel(this);
         }
@@ -245,16 +259,17 @@ public class World {
         _playerDirection = Direction.NONE;
         _playerX = _level.getStartX();
         _playerY = _level.getStartY();
-        this._enemies = new ArrayList<>(_level.getEnemies());
+        this._enemies = new CopyOnWriteArrayList<>(_level.getEnemies());
         _enemies.forEach(Enemies::reset);
         updateViews();
     }
 
     private void moveEnemies() {
         Iterator<Enemies> it = _enemies.iterator();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             Enemies e = it.next();
             e.update(this);
+            updateViews();
         }
     }
 

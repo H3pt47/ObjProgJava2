@@ -38,7 +38,8 @@ public class Labyrinth {
     private static ConsoleView cview;
     private static Controller controller;
 
-    private static ArrayList<keyPresses> _keys;
+    private static ArrayList<keyPresses> _mazeKeys;
+    private static ArrayList<keyPresses> _menuKeys;
 
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -62,10 +63,11 @@ public class Labyrinth {
 
                 // Create and register console view.
                 cview = new ConsoleView();
-                world.registerView(cview);
+                //world.registerView(cview);
 
                 // Register Keys
-                registerKeys();
+                registerMazeKeys();
+                registerMenuKeys();
 
                 // Create Main Menu
                 mainMenu = new MainMenu(TITEL);
@@ -84,7 +86,7 @@ public class Labyrinth {
     /////////////////// HELPER METHODS ////////////////////////////////
 
     private static void setupController(World world, GraphicView gview, MainMenu mainMenu){
-        controller = new Controller(world, gview, mainMenu, _keys);
+        controller = new Controller(world, gview, mainMenu, _mazeKeys, _menuKeys);
         controller.setExtendedState(JFrame.MAXIMIZED_BOTH);
         controller.setTitle(TITEL);
         controller.setUndecorated(BORDERLESS);
@@ -107,14 +109,19 @@ public class Labyrinth {
         controller.setVisible(true);
     }
 
-    private static void registerKeys() {
-        _keys = new ArrayList<keyPresses>();
-        _keys.add(new keyPresses("UP", KeyEvent.VK_UP, () -> world.movePlayer(Direction.UP), 0));
-        _keys.add(new keyPresses("DOWN", KeyEvent.VK_DOWN, () -> world.movePlayer(Direction.DOWN), 0));
-        _keys.add(new keyPresses("LEFT", KeyEvent.VK_LEFT, () -> world.movePlayer(Direction.LEFT), 0));
-        _keys.add(new keyPresses("RIGHT", KeyEvent.VK_RIGHT, () -> world.movePlayer(Direction.RIGHT), 0));
+    private static void registerMazeKeys() {
+        _mazeKeys = new ArrayList<>();
+        _mazeKeys.add(new keyPresses("UP", KeyEvent.VK_UP, () -> world.movePlayer(Direction.UP), 0));
+        _mazeKeys.add(new keyPresses("DOWN", KeyEvent.VK_DOWN, () -> world.movePlayer(Direction.DOWN), 0));
+        _mazeKeys.add(new keyPresses("LEFT", KeyEvent.VK_LEFT, () -> world.movePlayer(Direction.LEFT), 0));
+        _mazeKeys.add(new keyPresses("RIGHT", KeyEvent.VK_RIGHT, () -> world.movePlayer(Direction.RIGHT), 0));
         //_keys.add(new keyPresses("INTERACT", KeyEvent.VK_ENTER, () -> (), 0));
-        _keys.add(new keyPresses("ESC", KeyEvent.VK_ESCAPE, () -> controller.showMainMenu(), 0));
+        _mazeKeys.add(new keyPresses("ESC", KeyEvent.VK_ESCAPE, () -> controller.showMainMenu(), 0));
+    }
+
+    private static void registerMenuKeys() {
+        _menuKeys = new ArrayList<>();
+        _menuKeys.add(new keyPresses("ESC", KeyEvent.VK_ESCAPE, () -> controller.showGame(), 0));
     }
 
     private static void paramSetup() {
@@ -197,7 +204,7 @@ public class Labyrinth {
     }
 
     public static ArrayList<keyPresses> getKeys(){
-        return _keys;
+        return _mazeKeys;
     }
 
     //TODO multiple Screens

@@ -33,28 +33,33 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
     private CardLayout cards;
     private Container mainContainer;
 
-    private ArrayList<keyPresses> _keys;
+    private ArrayList<keyPresses> _mazeKeys;
+    private ArrayList<keyPresses> _menuKeys;
 
     private InputMap _inputMapGame;
     private ActionMap _actionMapGame;
+    private InputMap _inputMapMenu;
+    private ActionMap _actionMapMenu;
     /**
      * Creates a new instance.
      *
      * @param world the world to be updated whenever the player should move.
      * @param gview the GraphicView representation of the game so the Controller can take inputs from that.
      * @param mMenu The MainMenu, that is presented at the start of the game and anytime someone presses ESC
-     * @param keys The list of Actions that
+     * @param mazeKeys The list of Actions that
      */
-    public Controller(World world, GraphicView gview, MainMenu mMenu, ArrayList<keyPresses> keys) {
+    public Controller(World world, GraphicView gview, MainMenu mMenu, ArrayList<keyPresses> mazeKeys, ArrayList<keyPresses> menuKeys) {
         // Remember the world, gview, mainMenu, settings window,
         this.world = world;
         this.graphicView = gview;
         this.mainMenu = mMenu;
         this.settings = new Settings(this, this);
 
-        this._keys = keys;
+        this._mazeKeys = mazeKeys;
+        this._menuKeys = menuKeys;
 
         setupInputActionMap();
+
         mainContainer = this.getContentPane();
         this.cards = new CardLayout();
         this.mainContainer.setLayout(cards);
@@ -194,9 +199,21 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
     private void setupInputActionMap() {
         _inputMapGame = graphicView.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         _actionMapGame = graphicView.getActionMap();
-        _keys.forEach((key) -> {
+        _mazeKeys.forEach((key) -> {
             _inputMapGame.put(KeyStroke.getKeyStroke(key.getValue(), key.getModifier()), key.getKey());
             _actionMapGame.put(key.getKey(), new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    key.getCommand().run();
+                }
+            });
+        });
+
+        _inputMapMenu = mainMenu.getMenuPanel().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        _actionMapMenu = mainMenu.getMenuPanel().getActionMap();
+        _menuKeys.forEach((key) -> {
+            _inputMapMenu.put(KeyStroke.getKeyStroke(key.getValue(), key.getModifier()), key.getKey());
+            _actionMapMenu.put(key.getKey(), new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     key.getCommand().run();

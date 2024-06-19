@@ -48,7 +48,7 @@ public class ConsoleView implements View {
         update(world);
     }
 
-    private Boolean isEnemy(ArrayList<Enemies> enemies, int x, int y){
+    private Boolean isEnemy(List<Enemies> enemies, int x, int y){
         for (Enemies e : enemies) {
             if (e.getX() == x && e.getY() == y){
                 return true;
