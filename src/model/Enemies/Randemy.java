@@ -60,6 +60,7 @@ public class Randemy implements Enemies{
                     world.newEnemy(new Randemy(_X - _direction.deltaX, _Y - _direction.deltaY, true, false));
                 }
             }
+            //If the Randemy kills the Player (Moved onto the field of the player)
             if(_X == world.getPlayerX() && _Y == world.getPlayerY()){
                 world.levelReset();
             }

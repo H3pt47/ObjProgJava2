@@ -1,6 +1,8 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 
 import controller.Labyrinth;
 import model.Enemies.Enemies;
@@ -243,13 +245,15 @@ public class World {
         _playerDirection = Direction.NONE;
         _playerX = _level.getStartX();
         _playerY = _level.getStartY();
-        _enemies = new ArrayList<>(_level.getEnemies());
+        this._enemies = new ArrayList<>(_level.getEnemies());
         _enemies.forEach(Enemies::reset);
         updateViews();
     }
 
     private void moveEnemies() {
-        for(Enemies e: this._enemies){
+        Iterator<Enemies> it = _enemies.iterator();
+        while(it.hasNext()){
+            Enemies e = it.next();
             e.update(this);
         }
     }

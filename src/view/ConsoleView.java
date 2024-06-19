@@ -5,6 +5,7 @@ import model.Wall;
 import model.World;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A view that prints the current state of the world to the console upon every
