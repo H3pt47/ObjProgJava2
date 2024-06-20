@@ -95,7 +95,7 @@ public class GraphicView extends JPanel implements View {
         drawEnemies(g);
 
         // draw player
-        drawThePlayer(g);
+        drawThePlayer(g, player.x + _offSetX, player.y + _offSetY, player.width, player.height);
     }
 
     @Override
@@ -159,9 +159,9 @@ public class GraphicView extends JPanel implements View {
         g2d.dispose();
     }
 
-    private void drawThePlayer(Graphics g) {
+    private void drawThePlayer(Graphics g, int posX, int posY, int width, int height) {
         g.setColor(Color.WHITE);
-        g.fillRect(player.x + _offSetX, player.y + _offSetY, player.width, player.height);
+        g.fillRect(posX, posY, width, height);
         g.setColor(Color.RED);
         g.drawLine(player.x + _offSetX + (player.width/2),
                 player.y  + _offSetY + (player.height/2),
@@ -190,5 +190,8 @@ public class GraphicView extends JPanel implements View {
     private void drawEnemy(Graphics g, int posX, int posY, int width, int height, Enemies e){
         g.setColor(Color.RED);
         g.drawRect(posX, posY, width, height);
+        if(e.isDead()){
+            g.drawString("Dead", posX, posY);
+        }
     }
 }

@@ -32,7 +32,7 @@ public class Randemy implements Enemies{
 
     @Override
     public void update(World world){
-        if(_activated){
+        if(_activated && !_dead){
             _direction = Direction.NONE;
             int i = ThreadLocalRandom.current().nextInt(0, 5);
             int j = ThreadLocalRandom.current().nextInt(0, multChance);
