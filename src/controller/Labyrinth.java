@@ -141,9 +141,17 @@ public class Labyrinth {
         walls.add(new Wall(5,6));
         walls.add(new Wall(6,7));
 
+        //TESTLEVEL
+        ArrayList<Wall> walls2 = new ArrayList<>();
+        walls2.add(new Wall(2,2));
+        walls2.add(new Wall(3,3));
+        ArrayList<Enemies> enemies = new ArrayList<>();
+        enemies.add(new Dijkstremy(4,0, true, false));
+        Level test = new Level(5, 5, "TEST", walls2, 0, 0, 4, 4, enemies);
+
         ArrayList<Enemies> enemies1 = new ArrayList<>();
-        enemies1.add(new Randemy(0, 7, true, false));
-        enemies1.add(new Randemy(1, 7, true, false));
+        //enemies1.add(new Randemy(0, 7, true, false));
+        //enemies1.add(new Randemy(1, 7, true, false));
         enemies1.add(new Dijkstremy(22, 10, true, false));
         ArrayList<Enemies> enemies2 = new ArrayList<>();
         enemies2.add(new Randemy(2, 7, true, false));
@@ -151,6 +159,7 @@ public class Labyrinth {
         Level level1 = new Level(30, 30, "LEVEL1", walls, 0, 0, 10, 10, enemies1);
         Level level2 = new Level(10, 10, "LEVEL2", walls, 0, 0, 5, 5, enemies2);
         _levels = new ArrayList<>();
+        _levels.add(test);
         _levels.add(level1);
         _levels.add(level2);
     }

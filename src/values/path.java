@@ -2,6 +2,7 @@ package values;
 
 import model.Direction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class path {
@@ -19,5 +20,15 @@ public class path {
 
     public int getLength() {
         return _length;
+    }
+
+    public void setPath(List<Direction> path) {
+        _path = path;
+        _length = path.size();
+    }
+
+    @Override
+    public String toString() {
+        return _length + "," + _path.toString();
     }
 }

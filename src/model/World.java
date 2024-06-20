@@ -46,6 +46,7 @@ public class World {
     private static final int DELAY = 100;
 
     private Map<pathCoordinate, path> _paths;
+    private int farsight = 10;
 
     /**
      * Creates a new world with the given level.
@@ -179,21 +180,24 @@ public class World {
     public void movePlayer(Direction direction) {
         if (_userInputEnabled){
             _userInputEnabled = false;
-            // The direction tells us exactly how much we need to move along
-            // every direction
-            _playerDirection = direction;
-            setPlayerX(getPlayerX() + direction.deltaX);
-            setPlayerY(getPlayerY() + direction.deltaY);
-            if(enemyChecker(_playerX, _playerY)){
-                levelReset();
+            //checks for change of direction
+            if (_playerDirection != direction){
+                _playerDirection = direction;
+                updateViews();
+            } else{
+                // The direction tells us exactly how much we need to move along
+                // every direction
+                _playerDirection = direction;
+                setPlayerX(getPlayerX() + direction.deltaX);
+                setPlayerY(getPlayerY() + direction.deltaY);
+                if(enemyChecker(_playerX, _playerY)){
+                    levelReset();
+                }
+                calcPaths();
+                moveEnemies();
+                updateViews();
             }
-            calcPaths();
-            moveEnemies();
-            updateViews();
             _userInputEnabled = true;
-        }
-        else{
-            _playerDirection = direction;
         }
 
     }
@@ -234,10 +238,22 @@ public class World {
         return false;
     }
 
+    /**
+     * Method to check for walls
+     * @param X The X coordinate
+     * @param Y The Y coordinate
+     * @return Returns True if no Wall present, else False
+     */
     public boolean noWallChecker(int X, int Y){
         return (!_walls.contains(new Wall(X, Y)));
     }
 
+    /**
+     * Method to check if coordinates are in bounds
+     * @param X The X coordinate
+     * @param Y The Y coordinate
+     * @return Returns True if in Bounds, else False
+     */
     public boolean boundsChecker(int X, int Y){
         return (X >= 0 && Y >= 0 && X < width && Y < height);
     }
@@ -310,60 +326,56 @@ public class World {
         ArrayList<Direction> down = new ArrayList<>(l);
         down.add(Direction.UP);
         calcFromThisPoint(new pathCoordinate(_playerX, _playerY + 1), down);
+
     }
 
     private void calcFromThisPoint(pathCoordinate point, ArrayList<Direction> path){
+        //check if all routes that are necessary are calculated.
+        if (path.size() >= farsight){return;}
         //check if new field is valid
         if(noWallChecker(point.x(), point.y()) && boundsChecker(point.x(), point.y())){
             int currentX = point.x();
             int currentY = point.y();
             boolean shouldContinue = true;
 
-            while (noWallChecker(currentX, currentY) && boundsChecker(currentX, currentY) && shouldContinue){
+            while (noWallChecker(currentX, currentY) && boundsChecker(currentX, currentY) && shouldContinue) {
                 shouldContinue = false;
-                //checks if the coordinates have already been added to _paths or if the path to that tile is bigger than the current.
-                if (!_paths.containsKey(new pathCoordinate(currentX, currentY))){
-                    //adds the path to the Map
-                    _paths.put(new pathCoordinate(currentX, currentY), new path(new ArrayList<>(path)));
+                pathCoordinate currentCoord = new pathCoordinate(currentX, currentY);
+
+                if (!_paths.containsKey(currentCoord)) {
+                    _paths.put(currentCoord, new path(new ArrayList<>(path)));
+                    shouldContinue = true;
+                } else if (_paths.get(currentCoord).getLength() > path.size()){
+                    _paths.get(currentCoord).setPath(new ArrayList<>(path));
                     shouldContinue = true;
                 }
-                else{
-                    if (_paths.get(new pathCoordinate(currentX, currentY)).getLength() > path.size()){
-                        //updates to a shorter path;
-                        _paths.put(new pathCoordinate(currentX, currentY), new path(new ArrayList<>(path)));
-                        shouldContinue = true;
-                    }
-                }
 
-                if (shouldContinue){
-                    //recursively calculates the path for tiles branching off the "main" direction right now.
-                    switch(path.get(path.size()-1)){
-                        //if we are currently moving vertical, you should check the left and right
-                        case UP:
-                        case DOWN:
-                            ArrayList<Direction> left = new ArrayList<>(path);
-                            left.add(Direction.RIGHT);
-                            calcFromThisPoint(new pathCoordinate(currentX - 1, currentY), left);
-                            ArrayList<Direction> right = new ArrayList<>(path);
-                            right.add(Direction.LEFT);
-                            calcFromThisPoint(new pathCoordinate(currentX + 1, currentY), right);
-                            break;
-                        //look up
-                        case LEFT:
-                        case RIGHT:
-                            ArrayList<Direction> up = new ArrayList<>(path);
-                            up.add(Direction.DOWN);
-                            calcFromThisPoint(new pathCoordinate(currentX, currentY - 1), up);
-                            ArrayList<Direction> down = new ArrayList<>(path);
-                            down.add(Direction.UP);
-                            calcFromThisPoint(new pathCoordinate(currentX, currentY + 1), down);
-                            break;
+                if (shouldContinue) {
+                    Direction lastDirection = path.get(path.size() - 1);
+
+                    switch (lastDirection) {
+                        case UP, DOWN -> {
+                            ArrayList<Direction> newPathLeft = new ArrayList<>(path);
+                            newPathLeft.add(Direction.RIGHT);
+                            calcFromThisPoint(new pathCoordinate(currentX - 1, currentY), newPathLeft);
+
+                            ArrayList<Direction> newPathRight = new ArrayList<>(path);
+                            newPathRight.add(Direction.LEFT);
+                            calcFromThisPoint(new pathCoordinate(currentX + 1, currentY), newPathRight);
+                        }
+                        case LEFT, RIGHT -> {
+                            ArrayList<Direction> newPathUp = new ArrayList<>(path);
+                            newPathUp.add(Direction.DOWN);
+                            calcFromThisPoint(new pathCoordinate(currentX, currentY - 1), newPathUp);
+
+                            ArrayList<Direction> newPathDown = new ArrayList<>(path);
+                            newPathDown.add(Direction.UP);
+                            calcFromThisPoint(new pathCoordinate(currentX, currentY + 1), newPathDown);
+                        }
                     }
-                    //continue moving into the current Direction
-                    currentX -= path.get(path.size()-1).deltaX;
-                    currentY -= path.get(path.size()-1).deltaY;
-                    //adding the way to the Player to the path
-                    path.add(path.get(path.size()-1));
+                    currentX -= lastDirection.deltaX;
+                    currentY -= lastDirection.deltaY;
+                    path.add(lastDirection);
                 }
             }
         }

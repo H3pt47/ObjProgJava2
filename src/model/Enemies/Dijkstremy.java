@@ -7,6 +7,9 @@ import values.pathCoordinate;
 
 import java.util.List;
 
+/**
+ * Hunts down the player only if it sees them. The sight is limited to either straight lines or paths equal or shorter to a value specified in world. for performance reasons.
+ */
 public class Dijkstremy implements Enemies{
 
     private int _X;
@@ -36,7 +39,6 @@ public class Dijkstremy implements Enemies{
         if(_activated && !_dead){
             if(world.getPaths().containsKey(new pathCoordinate(_X, _Y))){
                 path path = world.getPaths().get(new pathCoordinate(_X, _Y));
-                System.out.println(path.getPath().toString());
                 _X += path.getPath().get(path.getLength()-1).deltaX;
                 _Y += path.getPath().get(path.getLength()-1).deltaY;
             }
