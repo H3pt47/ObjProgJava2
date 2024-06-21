@@ -54,7 +54,7 @@ public class Labyrinth {
                 // Create a new game world.
                 _generator.generateMaze();
 
-                world = new World(new Level(SIZE_X, SIZE_Y, "GENERATED", _generator.getWalls(), _generator.getPlayerX(), _generator.getPlayerY(), _generator.getEndX(), _generator.getEndY(), new ArrayList<Enemies>()));
+                world = new World(new Level(SIZE_X, SIZE_Y, "GENERATED", _generator.getWalls(), _generator.getPlayerX(), _generator.getPlayerY(), _generator.getEndX(), _generator.getEndY(), _generator.get_enemies()));
 
                 // Size of a field in the graphical view.
                 fieldDimensions = new Dimension(SCALE_X, SCALE_Y);
@@ -126,8 +126,10 @@ public class Labyrinth {
         _mazeKeys.add(new keyPresses("DOWN", KeyEvent.VK_DOWN, () -> world.movePlayer(Direction.DOWN), 0));
         _mazeKeys.add(new keyPresses("LEFT", KeyEvent.VK_LEFT, () -> world.movePlayer(Direction.LEFT), 0));
         _mazeKeys.add(new keyPresses("RIGHT", KeyEvent.VK_RIGHT, () -> world.movePlayer(Direction.RIGHT), 0));
-        //_keys.add(new keyPresses("INTERACT", KeyEvent.VK_ENTER, () -> (), 0));
+        _mazeKeys.add(new keyPresses("SLASH", KeyEvent.VK_ENTER, () -> world.doSlash(), 0));
         _mazeKeys.add(new keyPresses("ESC", KeyEvent.VK_ESCAPE, () -> controller.showMainMenu(), 0));
+        _mazeKeys.add(new keyPresses("e", KeyEvent.VK_E, Labyrinth::loadNewLevel, 0));
+        _mazeKeys.add(new keyPresses("r", KeyEvent.VK_R, () -> world.levelReset(), 0));
     }
 
     private static void registerMenuKeys() {
@@ -137,11 +139,11 @@ public class Labyrinth {
 
     private static void paramSetup() {
         TITEL = "The lazy Labyrinth";
-        SCALE_X = 25;
-        SCALE_Y = 25;
-        SIZE_X = 23;
-        SIZE_Y = 23;
-        DIFFICULTY = 0;
+        SCALE_X = 50;
+        SCALE_Y = 50;
+        SIZE_X = 17;
+        SIZE_Y = 17;
+        DIFFICULTY = 2;
         BORDERLESS = true;
         LANGUAGE = "english";
         _generator = new LevelGenerator(SIZE_X,SIZE_Y);

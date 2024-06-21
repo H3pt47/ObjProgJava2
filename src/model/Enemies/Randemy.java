@@ -98,4 +98,8 @@ public class Randemy implements Enemies{
     public void setActivated(boolean activated){
         _activated = activated;
     }
+
+    public void kill(){
+        _dead = true;
+    }
 }

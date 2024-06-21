@@ -97,6 +97,13 @@ public class GraphicView extends JPanel implements View {
         drawPlayerTrackings(g);
         drawEnemies(g);
 
+        if(_world.getSlashX() != -1 && _world.getSlashY() != -1){
+            drawSlash(g, _world.getSlashX() * fieldDimension.width + _offSetX + fieldDimension.width / 2,
+                    _world.getSlashY() * fieldDimension.height + _offSetY + fieldDimension.height / 2,
+                    ((6 - _world.getSlashCoolDown()) * fieldDimension.width) / 2,
+                    ((6 - _world.getSlashCoolDown()) * fieldDimension.height) / 2);
+        }
+
         // draw player
         drawThePlayer(g, player.x + _offSetX, player.y + _offSetY, player.width, player.height);
     }
@@ -158,6 +165,9 @@ public class GraphicView extends JPanel implements View {
         //paint the End field
         drawEndField(g2d, _world.getEndX() * fieldDimension.width + _offSetX, _world.getEndY() * fieldDimension.height + _offSetY, fieldDimension.width, fieldDimension.height);
 
+        //Controls on the side [COMING SOON]
+        //g2d.drawString()
+
         //dispose to save resources
         g2d.dispose();
     }
@@ -185,7 +195,6 @@ public class GraphicView extends JPanel implements View {
         g2d.drawLine((int) (posX + width / 2), posY + height / 3, (int) (posX + width / 2), (int) (posY + 0.66 * height));
         g2d.drawLine(posX + width / 4, (int) (posY + 0.66 * height), posX + width / 4, posY + height);
         g2d.drawLine((int) (posX + 0.75 * width), (int) (posY + 0.66 * height), (int) (posX + 0.75 * width), posY + height);
-
     }
 
     private void drawEndField(Graphics2D g2d, int posX, int posY, int width, int height){
@@ -199,12 +208,52 @@ public class GraphicView extends JPanel implements View {
         }
     }
 
-    private void drawEnemy(Graphics g, int posX, int posY, int width, int height, Enemies e){
-        g.setColor(Color.RED);
-        g.drawRect(posX, posY, width, height);
-        if(e.isDead()){
-            g.drawString("Dead", posX, posY);
+    private void drawEnemy(Graphics g, int posX, int posY, int width, int height, Enemies e) {
+
+        if (e.isActivated() && !e.isDead()) {
+            g.setColor(Color.RED);
+            g.drawRect(posX, posY, width, height);
+            g.drawRect(posX + width / 5, posY + height / 5, width / 5, height / 5);
+            g.drawRect(posX + width / 5, posY + height / 5, width / 5, height / 5);
+            g.drawRect((int) (posX + 0.6 * width), posY + height / 5, width / 5, height / 5);
+            g.drawLine(posX + width / 5, (int) (posY + 0.6 * height), (int) (posX + 0.8 * width), (int) (posY + 0.6 * height));
+
+        } else if (e.isDead()) {
+            g.setColor(Color.RED);
+            g.drawRect(posX, posY, width, height);
+
+            g.drawLine((int) (posX + 0.2 * width), posY + height / 5, (int) (posX + 0.4 * width), (int) (posY + 0.4 * height));
+            g.drawLine((int) (posX + 0.4 * width), posY + height / 5, posX + width / 5, (int) (posY + 0.4 * height));
+
+            g.drawLine((int) (posX + 0.6 * width), posY + height / 5, (int) (posX + 0.8 * width), (int) (posY + 0.4 * height));
+            g.drawLine((int) (posX + 0.8 * width), posY + height / 5, (int) (posX + 0.6 * width), (int) (posY + 0.4 * height));
+
+            g.drawOval(posX + width/3 , (int) (posY + height * 0.5), width/3 , height /4);
+
+        } else if (!e.isActivated()) {
+
+            g.setColor(Color.WHITE);
+            g.drawRect(posX, posY, width, height);
+            g.drawLine(posX + width / 5, (int) (posY + 0.6 * height), (int) (posX + 0.8 * width), (int) (posY + 0.6 * height));
+            g.drawLine(posX + width / 5, posY + height / 5, (int) (posX + 0.4 * width), posY + height / 5);
+            g.drawLine((int) (posX + 0.6 * width), posY + height / 5, (int) (posX + 0.8 * width), posY + height / 5);
+            if (_world.boundsChecker(posX, posY + height)) {
+                g.setColor(Color.blue);
+                String z = "z";
+                Font stringFont = new Font("SansSerif", Font.PLAIN, 10);
+                g.setFont(stringFont);
+                g.drawString(z, (int) (posX + 0.6 * width), (int) (posY - 0.25 * height));
+                Font stringFont1 = new Font("SansSerif", Font.PLAIN, 12);
+                g.setFont(stringFont1);
+                g.drawString(z, (int) (posX + 0.75 * width), (int) (posY - 0.60 * height));
+                Font stringFont2 = new Font("SansSerif", Font.PLAIN, 14);
+                g.setFont(stringFont2);
+                g.drawString(z, (int) (posX + 0.9 * width), (int) (posY - 0.95 * height));
+
+            }
+
         }
+
     }
 
     private void drawPlayerTrackings(Graphics g){
@@ -236,5 +285,9 @@ public class GraphicView extends JPanel implements View {
                 break;
         }
 
+    }
+    private void drawSlash(Graphics g, int x, int y, int sizeX, int sizeY){
+        g.setColor(Color.CYAN);
+        g.drawRect(x - sizeX / 2, y - sizeY / 2, sizeX, sizeY);
     }
 }

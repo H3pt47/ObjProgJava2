@@ -21,4 +21,6 @@ public interface Enemies {
 
     void setActivated(boolean activated);
 
+    void kill();
+
 }

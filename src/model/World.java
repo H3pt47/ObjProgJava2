@@ -46,7 +46,11 @@ public class World {
     private static final int DELAY = 100;
 
     private Map<pathCoordinate, path> _paths;
-    private int farsight = 20;
+    private int farsight = 200;
+
+    private int slashX;
+    private int slashY;
+    private int slashCoolDown;
 
     /**
      * Creates a new world with the given level.
@@ -73,6 +77,7 @@ public class World {
 
         this._paths = new HashMap<>();
         calcPaths();
+        slashReset();
         this._userInputEnabled = true;
     }
 
@@ -170,6 +175,15 @@ public class World {
     public Map<pathCoordinate, path> getPaths() {
         return _paths;
     }
+    public int getSlashX(){
+        return slashX;
+    }
+    public int getSlashY(){
+        return slashY;
+    }
+    public int getSlashCoolDown(){
+        return slashCoolDown;
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Player Management
@@ -182,6 +196,13 @@ public class World {
     public void movePlayer(Direction direction) {
         if (_userInputEnabled){
             _userInputEnabled = false;
+
+            if (slashCoolDown > 0){
+                slashCoolDown--;
+            } else{
+                slashReset();
+            }
+
             // The direction tells us exactly how much we need to move along
             // every direction
             _playerDirection = direction;
@@ -272,6 +293,7 @@ public class World {
         this._enemies = new CopyOnWriteArrayList<>(level.getEnemies());
         _paths.clear();
         calcPaths();
+        slashReset();
         for (View view : views) {
             view.newLevel(this);
         }
@@ -286,6 +308,7 @@ public class World {
         _enemies.forEach(Enemies::reset);
         _paths.clear();
         calcPaths();
+        slashReset();
         updateViews();
     }
 
@@ -373,5 +396,27 @@ public class World {
         ArrayList<Direction> pathContinue = new ArrayList<>(path);
         pathContinue.add(path.get(path.size()-1));
         calcFromThisPoint(new pathCoordinate(point.x() - path.get(path.size()-1).deltaX, point.y() - path.get(path.size()-1).deltaY), pathContinue);
+    }
+
+    private void slashReset(){
+        slashX = -1;
+        slashY = -1;
+        slashCoolDown = 0;
+    }
+
+    public void doSlash(){
+        if (slashCoolDown == 0){
+            slashX = _playerX;
+            slashY = _playerY;
+            slashCoolDown = 6;
+            for (Enemies e : _enemies) {
+                if ((e.getX() == _playerX - 1 || e.getX() == _playerX || e.getX() == _playerX + 1)
+                        && (e.getY() == _playerY - 1 || e.getY() == _playerY || e.getY() == _playerY + 1)){
+                    e.kill();
+                }
+            }
+            updateViews();
+            moveEnemies();
+        }
     }
 }

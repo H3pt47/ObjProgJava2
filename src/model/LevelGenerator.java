@@ -1,5 +1,7 @@
 package model;
 
+import controller.Labyrinth;
+import model.Enemies.Dijkstremy;
 import model.Enemies.Enemies;
 import model.Enemies.Randemy;
 
@@ -18,6 +20,11 @@ public class LevelGenerator {
     private int endX;
     private int endY;
 
+    private int _numberOfHalls;
+    private int _hallCoolDown;
+
+    private int _spawnChance;
+
     private ArrayList<Enemies> _enemies;
 
     public LevelGenerator(int width, int height) {
@@ -26,6 +33,9 @@ public class LevelGenerator {
         grid = new Cell[width][height];
         walls = new ArrayList<>();
         _enemies = new ArrayList<>();
+        this._numberOfHalls = (width * height) / (54);
+        _hallCoolDown = 4;
+        _spawnChance = 5 - Labyrinth.getDifficulty() * 2;
         initializeGrid();
     }
 
@@ -57,6 +67,8 @@ public class LevelGenerator {
         grid = new Cell[width][height];
         walls = new ArrayList<>();
         _enemies = new ArrayList<>();
+        recalcHalls();
+        recalcSpawnChance();
         initializeGrid();
     }
 
@@ -76,8 +88,11 @@ public class LevelGenerator {
             if (next != null) {
                 next.isWall = false;
                 removeWall(current, next);
-                //if (!hallMaker(current, next, stack)){}
+                if(hallMaker(current, next, stack)){
+                    _numberOfHalls--;
+                };
                 stack.push(next);
+                _hallCoolDown--;
             } else {
                 stack.pop();
             }
@@ -143,80 +158,103 @@ public class LevelGenerator {
     }
 
     private boolean hallMaker(Cell current, Cell next, Stack<Cell> stack) {
-        if(!(0 < ((current.x + next.x) / 2) - 4 && width > ((current.x + next.x) / 2) + 4 && 0 < ((current.y + next.y) / 2) - 4 && height > ((current.y + next.y) / 2) + 4)){return false;}
+        if(_numberOfHalls == 0
+                || _hallCoolDown > 0
+                || !(0 < ((current.x + next.x) / 2) - 4
+                && width > ((current.x + next.x) / 2) + 4
+                && 0 < ((current.y + next.y) / 2) - 4
+                && height > ((current.y + next.y) / 2) + 4)){return false;}
         //checks if the pair of tiles is horizontal or vertical and checks for borderPositions
         // and if a 3x3 Room can be created.
         if (current.y == next.y
                 && grid[current.x][current.y - 2].isWall
-                && grid[current.x][current.y + 2].isWall
-                && grid[(current.x + next.x) / 2][current.y - 4].isWall
-                && grid[(current.x + next.x) / 2][current.y + 4].isWall
-                && grid[next.x][next.y - 2].isWall
-                && grid[next.x][next.y + 2].isWall) {
-            //removes the top 3 tiles
-            grid[current.x][current.y - 1].isWall = false;
+                && grid[next.x][next.y - 2].isWall) {
+            removeWall(current, grid[current.x][current.y - 2]);
+            grid[current.x][current.y - 2].isWall = false;
+            stack.push(grid[current.x][current.y - 2]);
+
+            removeWall(next, grid[next.x][next.y - 2]);
+            grid[current.x][next.y - 2].isWall = false;
+            stack.push(grid[next.x][next.y - 2]);
+
             grid[(current.x + next.x) / 2][current.y - 1].isWall = false;
-            grid[next.x][next.y - 1].isWall = false;
-            //removes the bottom 3 tiles
-            grid[current.x][current.y + 1].isWall = false;
-            grid[(current.x + next.x) / 2][current.y + 1].isWall = false;
-            grid[next.x][next.y + 1].isWall = false;
+            grid[(current.x + next.x) / 2][current.y - 2].isWall = false;
 
-            removeWall(grid[(current.x + next.x) / 2][current.y - 1], grid[(current.x + next.x) / 2][current.y - 3]);
-            stack.push(grid[(current.x + next.x) / 2][current.y - 3]);
-
-            removeWall(grid[(current.x + next.x) / 2][current.y + 1], grid[(current.x + next.x) / 2][current.y + 3]);
-            stack.push(grid[(current.x + next.x) / 2][current.y + 3]);
-
-            if (current.x < next.x) {
-                removeWall(next, grid[next.x + 2][next.y]);
-                stack.push(grid[next.x + 2][next.y]);
-            } else{
-                removeWall(next, grid[next.x - 2][next.y]);
-                stack.push(grid[next.x - 2][next.y]);
-            }
-            _enemies.add(new Randemy((current.x + next.x) / 2, (current.y + next.y) / 2, false, true));
+            spawnEnemy((current.x + next.x) / 2, (current.y - 1));
             return true;
         }
-        //Vertical Alignment for current and next
-        else if (current.x == next.x
-                && grid[current.x - 2][current.y].isWall
-                && grid[current.x + 2][current.y].isWall
-                && grid[current.x - 4][(current.y + next.y) / 2].isWall
-                && grid[current.x + 4][(current.y + next.y) / 2].isWall
-                && grid[next.x - 2][next.y].isWall
-                && grid[next.x + 2][next.y + 1].isWall) {
-            //removes left Side
-            grid[current.x - 1][current.y].isWall = false;
-            grid[current.x - 1][(current.y + next.y) / 2].isWall = false;
-            grid[current.x - 1][next.y].isWall = false;
-            //removes right Side
-            grid[current.x + 1][current.y].isWall = false;
-            grid[current.x + 1][(current.y + next.y) / 2].isWall = false;
-            grid[current.x + 1][next.y].isWall = false;
+        else if(current.y == next.y
+                && grid[next.x][next.y + 2].isWall
+                && grid[current.x][current.y + 2].isWall) {
 
-            removeWall(grid[current.x - 1][(current.y + next.y) / 2], grid[current.x - 3][(current.y + next.y) / 2]);
-            stack.push(grid[current.x - 3][(current.y + next.y) / 2]);
+            removeWall(current, grid[current.x][current.y + 2]);
+            grid[current.x][current.y + 2].isWall = false;
+            stack.push(grid[current.x][current.y + 2]);
 
-            removeWall(grid[current.x + 1][(current.y + next.y) / 2], grid[current.x + 3][(current.y + next.y) / 2]);
-            stack.push(grid[current.x + 3][(current.y + next.y) / 2]);
+            removeWall(next, grid[next.x][next.y + 2]);
+            grid[next.x][next.y + 2].isWall = false;
+            stack.push(grid[next.x][next.y + 2]);
 
-            if (current.y < next.y) {
-                removeWall(next, grid[next.x][next.y + 2]);
-                stack.push(grid[next.x][next.y + 2]);
-            } else{
-                removeWall(next, grid[next.x][next.y - 2]);
-                stack.push(grid[next.x][next.y - 2]);
-            }
+            grid[(current.x + next.x) / 2][current.y + 1].isWall = false;
+            grid[(current.x + next.x) / 2][current.y + 2].isWall = false;
 
-            stack.push(grid[current.x - 1][(current.y + next.y) / 2]);
-            stack.push(grid[current.x + 1][(current.y + next.y) / 2]);
-            _enemies.add(new Randemy((current.x + next.x) / 2, (current.y + next.y) / 2, false, true));
+            spawnEnemy((current.x + next.x) / 2, (current.y + 1));
             return true;
+        }
+        else if(current.x == next.x
+                && grid[current.x - 2][current.y].isWall
+                && grid[current.x - 2][next.y].isWall){
+            removeWall(current, grid[current.x - 2][current.y]);
+            grid[current.x - 2][current.y].isWall = false;
+            stack.push(grid[current.x - 2][current.y]);
+
+            removeWall(next, grid[current.x - 2][next.y]);
+            grid[current.x - 2][next.y].isWall = false;
+            stack.push(grid[current.x - 2][next.y]);
+
+            grid[current.x - 1][(current.y + next.y) / 2].isWall = false;
+            grid[current.x - 2][(current.y + next.y) / 2].isWall = false;
+
+            spawnEnemy(current.x - 1, (current.y + next.y) / 2);
+
+            return true;
+        }
+        else if(current.x == next.x
+                && grid[current.x + 2][current.y].isWall
+                && grid[current.x + 2][next.y].isWall){
+            removeWall(current, grid[current.x + 2][current.y]);
+            grid[current.x + 2][current.y].isWall = false;
+            stack.push(grid[current.x + 2][current.y]);
+
+            removeWall(next, grid[current.x + 2][next.y]);
+            grid[current.x + 2][next.y].isWall = false;
+            stack.push(grid[current.x + 2][next.y]);
+
+            grid[current.x + 1][(current.y + next.y) / 2].isWall = false;
+            grid[current.x + 2][(current.y + next.y) / 2].isWall = false;
+
+            spawnEnemy(current.x + 1, (current.y + next.y) / 2);
+             return true;
         }
         return false;
     }
 
+    private void recalcHalls(){
+        this._numberOfHalls = (width * height) / (54);
+        this._hallCoolDown = 4;
+    }
+
+    private void spawnEnemy(int x, int y){
+        Random r = new Random();
+
+        if (r.nextInt(0, _spawnChance) == 0){
+            _enemies.add(new Dijkstremy(x, y, true, false));
+        }
+    }
+
+    public void recalcSpawnChance(){
+        _spawnChance = 5 - Labyrinth.getDifficulty() * 2;
+    }
 }
 
 class Cell {
