@@ -50,8 +50,8 @@ public class Dijkstremy implements Enemies{
     }
 
     /**
-     *
-     * @param world
+     * The update method for moving the enemy.
+     * @param world The world in which the Enemy lives. It gets the information about its surroundings from that and acts accordingly.
      */
     @Override
     public void update(World world){
@@ -78,6 +78,9 @@ public class Dijkstremy implements Enemies{
         }
     }
 
+    /**
+     * Resets the state and coordinates of the enemy.
+     */
     @Override
     public void reset(){
         _direction = Direction.NONE;
@@ -87,6 +90,11 @@ public class Dijkstremy implements Enemies{
         _dead = false;
         _coolDown = 0;
     }
+
+    /**
+     * Get X coordinate
+     * @return The X coordinate of the enemy.
+     */
     @Override
     public int getX(){
         return _X;
@@ -116,6 +124,9 @@ public class Dijkstremy implements Enemies{
         _dead = true;
     }
 
+    /**
+     * A mechanic in which the enemy randomly overheats and deactivates for a set amount of moves. It
+     */
     private void overHeating(){
         Random r = new Random();
         if (r.nextInt(0, Labyrinth.getDifficulty() * 2 + 5) == 0){

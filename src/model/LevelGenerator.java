@@ -3,18 +3,16 @@ package model;
 import controller.Labyrinth;
 import model.Enemies.Dijkstremy;
 import model.Enemies.Enemies;
-import model.Enemies.Randemy;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Collections;
 import java.util.Stack;
 
 
 /**
- *
- * Generates a new Level with randomly placed walls.
- *
+ * Generates a new Level with randomly placed walls. All tiles are connected. Enemies are spawned.
+ * To generate a new Level call the generateMaze() method.
+ * Then get your Level info with the getter methods.
  */
 
 public class LevelGenerator {
@@ -36,8 +34,8 @@ public class LevelGenerator {
     private ArrayList<Enemies> _enemies;
 
     /**
-     * Generaties a new Level with a certain width and height.
-     * @param width widht of the level.
+     * Generates a new Level with a certain width and height.
+     * @param width width of the level.
      * @param height height of the level.
      */
     public LevelGenerator(int width, int height) {
@@ -54,7 +52,7 @@ public class LevelGenerator {
 
 
     /**
-     *  Creates new Cells.
+     *  Creates new Cells. Every Cell is a Wall.
      */
     private void initializeGrid() {
         for (int x = 0; x < width; x++) {
@@ -65,20 +63,20 @@ public class LevelGenerator {
     }
 
     /**
-     * Resets the grid .
+     * Resets the grid. Makes it ready for generating a new Maze with the same dimensions.
      */
     private void resetGrid(){
         grid = new Cell[width][height];
         walls = new ArrayList<>();
         _enemies = new ArrayList<>();
-        recalcHalls();
-        recalcSpawnChance();
+        recalculatesHalls();
+        recalculatesSpawnChance();
         initializeGrid();
     }
 
     /**
-     * Generates a maze.
-     * Erklär bitte bruder:(
+     * Generates a new random maze.
+     * Every tile is connected and Enemies are spawned in 3x3 Rooms, which are at least _hallCoolDown * 2 Tiles away. The end tile is chosen randomly.
      */
     public void generateMaze() {
         resetGrid();
@@ -113,9 +111,9 @@ public class LevelGenerator {
     }
 
     /**
-     *
-     * @param cell
-     * @return
+     *  Returns a random unvisited Cell (wall), that is 2 tiles away form the given one. Or none.
+     * @param cell The cell to get the neighbour from.
+     * @return Cell or None
      */
     private Cell getRandomUnvisitedNeighbor(Cell cell) {
         ArrayList<Cell> neighbors = new ArrayList<>();
@@ -171,11 +169,11 @@ public class LevelGenerator {
     }
 
     /**
-     *
-     * @param current
-     * @param next
-     * @param stack
-     * @return
+     * Alters the Algorithm and adds 3x3 Halls to potentially summon Enemies in them.
+     * @param current the current Cell
+     * @param next The next Cell
+     * @param stack The stack to add the other borders of the Hall, to make them more connected.
+     * @return True if a hall was made, False otherwise.
      */
     private boolean hallMaker(Cell current, Cell next, Stack<Cell> stack) {
         if(_numberOfHalls == 0
@@ -259,21 +257,31 @@ public class LevelGenerator {
         return false;
     }
 
-    private void recalcHalls(){
+    /**
+     * Recalculates the maximum number of Hallways the Maze can hold.
+     */
+    private void recalculatesHalls(){
         this._numberOfHalls = (width * height) / (54);
         this._hallCoolDown = 4;
     }
 
+    /**
+     * Creates a new Dijkstremy at the given Coordinates.
+     * @param x The X coordinate.
+     * @param y The Y coordinate.
+     */
     private void spawnEnemy(int x, int y){
-        Random r = new Random();
 
-        if (r.nextInt(0, _spawnChance) == 0){
+        if (random.nextInt(0, _spawnChance) == 0){
             _enemies.add(new Dijkstremy(x, y, true, false));
         }
     }
 
-    public void recalcSpawnChance(){
-        _spawnChance = 5 - Labyrinth.getDifficulty() * 2;
+    /**
+     * Recalculates the Enemy spawn chances using the Difficulty setting.
+     */
+    public void recalculatesSpawnChance(){
+        _spawnChance = (5 - Labyrinth.getDifficulty()) * 2;
     }
     /////////Getter And Settter////////////////
 
@@ -296,10 +304,19 @@ public class LevelGenerator {
 
 }
 
+/**
+ * The Cell. A helper class to generate new Mazes.
+ */
 class Cell {
     int x, y;
     boolean isWall;
 
+    /**
+     * Makes a new Cell
+     * @param x The X coordinate of the cell
+     * @param y The Y coordinate of the cell.
+     * @param isWall A Boolean value, whether it is a Wall or not. True for yes, False for no.
+     */
     Cell(int x, int y, boolean isWall) {
         this.x = x;
         this.y = y;
