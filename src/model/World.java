@@ -123,7 +123,7 @@ public class World {
         playerX = Math.max(0, playerX);
         playerX = Math.min(getWidth() - 1, playerX);
         //check for valid position e.g. no wall
-        if(noWallChecker(playerX, _playerY) && !noDeactivatedEnemyChecker(playerX, _playerY)){
+        if(noWallChecker(playerX, _playerY) && noDeactivatedEnemyChecker(playerX, _playerY)){
             this._playerX = playerX;
         }
 
@@ -146,7 +146,7 @@ public class World {
     public void setPlayerY(int playerY) {
         playerY = Math.max(0, playerY);
         playerY = Math.min(getHeight() - 1, playerY);
-        if(noWallChecker(_playerX, playerY) && !noDeactivatedEnemyChecker(_playerX, playerY)){
+        if(noWallChecker(_playerX, playerY) && noDeactivatedEnemyChecker(_playerX, playerY)){
             this._playerY = playerY;
         }
     }
@@ -323,10 +323,10 @@ public class World {
     public boolean noDeactivatedEnemyChecker(int x, int y){
         for (Enemies e: _enemies){
             if (e.getX() == x && e.getY() == y && !e.isActivated()){
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     /**
