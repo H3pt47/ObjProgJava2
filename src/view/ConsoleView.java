@@ -15,7 +15,7 @@ public class ConsoleView implements View {
 
     /**
      * Creates and updates the console view with '#' for rows, 'W' for walls,
-     * 'T' for target, E for enemy.
+     * 'T' for target, E for enemy. The rest is filled with dots.
      * @param world updates the given world.
      */
     @Override
@@ -29,7 +29,7 @@ public class ConsoleView implements View {
                 // If the player is here, print #, otherwise print .
                 if (row == playerY && col == playerX) {
                     System.out.print("#");
-                } else if (world.getWalls().contains(new Wall(row, col))){
+                } else if (world.getWalls().contains(new Wall(col, row))){
                     System.out.print("W");
                 } else if (col == world.getEndX() && row == world.getEndY()){
                     System.out.print("T");
@@ -59,7 +59,7 @@ public class ConsoleView implements View {
 
     /**
      * Checks if an enemy is at a given x-and y coordinate.
-     * @param enemies Arraylist of enemeies.
+     * @param enemies Arraylist of enemies.
      * @param x x-coordinate.
      * @param y y-coordinate.
      * @return If an enemy is at a given x-and y coordinate.
