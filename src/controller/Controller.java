@@ -25,11 +25,15 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
 
     /** The world that is updated upon every key press. */
     private World world;
+    /** List of every view. */
     private List<View> views;
+    /** The graphical view of the world.*/
     private GraphicView graphicView;
+    /** The main menu where the user has various selections*/
     private MainMenu mainMenu;
+    /** Setting menu where the user can change the settings.*/
     private Settings settings;
-
+    /** */
     private CardLayout cards;
     private Container mainContainer;
 
@@ -99,6 +103,10 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
 
     /////////////////// Action Events ////////////////////////////////
 
+    /**
+     * The actions that can be selected in the main menu.
+     * @param e the event to be processed
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         //System.out.println(e.getActionCommand());
@@ -164,14 +172,23 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
 
     /////////////////// HELPER METHODS ////////////////////////////////
 
+    /**
+     * Shows the main menu.
+     */
     public void showMainMenu(){
         cards.show(mainContainer, "MENU");
     }
 
+    /**
+     * Shows the game.
+     */
     public void showGame(){
         cards.show(mainContainer, "GAME");
     }
 
+    /**
+     * Method to handle the different setting that can be selected.
+     */
     private void handleSettings(){
         if (settings.getDifficulty1().isSelected()){
             Labyrinth.setDifficulty(0);

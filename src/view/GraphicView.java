@@ -16,7 +16,7 @@ import values.pathCoordinate;
 /**
  * A graphical view of the world.
  */
-public class GraphicView extends JPanel implements View {
+public class GraphicView extends JPanel implements view.View {
 
     /** The width of the level in pixels. */
     private int WIDTH;
@@ -37,6 +37,10 @@ public class GraphicView extends JPanel implements View {
      */
     private Dimension fieldDimension;
 
+    /**
+     *
+     *
+     */
     private Controller _controller;
 
     private World _world;

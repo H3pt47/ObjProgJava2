@@ -24,27 +24,29 @@ public class World {
     private int _playerX;
     /** The player's y position in the world. */
     private int _playerY;
-
-    private Direction _playerDirection;
-
+    /** The direction the player is facing.*/
+    private model.Direction _playerDirection;
+    /** The end X - coordinate of the world*/
     private int _endX;
-
+    /** The end Y - coordinate of the world*/
     private int _endY;
-
+    /** An Arraylist that stores all walls of a world.*/
     private ArrayList<Wall> _walls;
 
     /** Set of views registered to be notified of world updates. */
     private final ArrayList<View> views = new ArrayList<>();
 
+    /** The level that is loaded*/
     private Level _level;
-
+    /** A list that stores enemies*/
     private List<Enemies> _enemies;
-
+    /** Boolean that allows userinput*/
     private Boolean _userInputEnabled;
 
-    //timing management
+    //timing management currently not in use :(
     private static final int DELAY = 100;
 
+    /** */
     private Map<pathCoordinate, path> _paths;
     private int farsight = 20;
 
@@ -144,29 +146,56 @@ public class World {
         }
     }
 
+    /**
+     * Returns the Direction the player is facing.
+     *
+     * @return The Direction the player is facing.
+     */
     public Direction getPlayerDirection() {
         return _playerDirection;
     }
 
     /**
      * Returns the walls in an ArrayList.
+     *
      * @return The walls in an ArrayList
      */
     public ArrayList<Wall> getWalls() {
         return _walls;
     }
 
+    /**
+     * Returns The End X-coordinate of the world.
+     *
+     * @return The End X-coordinate of the world.
+     */
     public int getEndX() {
         return _endX;
     }
+
+    /**
+     * Returns the End Y-coordinate of the world.
+     *
+     * @return The End Y-coordinate of the world.
+     */
     public int getEndY() {
         return _endY;
     }
 
+    /**
+     * Returns the List where the enemies are stored.
+     *
+     * @return The List where the enemies are stored.
+     */
     public List<Enemies> getEnemies() {
         return _enemies;
     }
 
+    /**
+     *
+     *
+     * @return weiss selber nicht.
+     */
     public Map<pathCoordinate, path> getPaths() {
         return _paths;
     }
@@ -225,6 +254,12 @@ public class World {
         }
     }
 
+    /**
+     *
+     * @param X The X-coordinate that should be checked for enemies
+     * @param Y The Y-coordinate that should be checked for enemies
+     * @return if there is an enemiy at the given Point.
+     */
     public boolean enemyChecker(int X, int Y){
         for (Enemies e: _enemies){
             if (e.getX() == X && e.getY() == Y && !e.isDead()){
@@ -254,10 +289,20 @@ public class World {
         return (X >= 0 && Y >= 0 && X < width && Y < height);
     }
 
+    /**
+     *
+     * @param X X-coordinate that is checked for no walls, no bounds and no emenies.
+     * @param Y Y-coordinate that is checked for no walls, no bounds and no emenies.
+     * @return if there is no wall and no bound and no enemiy.
+     */
     public boolean posCheckEnemies(int X, int Y){
         return (noWallChecker(X,Y) && boundsChecker(X,Y) && !enemyChecker(X,Y));
     }
 
+    /**
+     *
+     * @param level the level that is created.
+     */
     public void newLevel(Level level){
         this._level = level;
 
@@ -278,6 +323,9 @@ public class World {
         updateViews();
     }
 
+    /**
+     * Resets the level to
+     */
     public void levelReset(){
         _playerDirection = Direction.NONE;
         _playerX = _level.getStartX();
@@ -289,6 +337,9 @@ public class World {
         updateViews();
     }
 
+    /**
+     *  Moves the enemies.
+     */
     private void moveEnemies() {
         Iterator<Enemies> it = _enemies.iterator();
         while (it.hasNext()) {
@@ -298,11 +349,18 @@ public class World {
         }
     }
 
+    /**
+     *
+     * @param e Enemy that is added to the _enemies Array.
+     */
     public void newEnemy(Enemies e){
         this._enemies.add(e);
         updateViews();
     }
 
+    /**
+     * bro what ????
+     */
     private void calcPaths(){
         _paths = new HashMap<>();
         pathCoordinate pc = new pathCoordinate(_playerX, _playerY);
@@ -329,6 +387,11 @@ public class World {
 
     }
 
+    /**
+     *
+     * @param point
+     * @param path
+     */
     private void calcFromThisPoint(pathCoordinate point, ArrayList<Direction> path){
         //check if all routes that are necessary are calculated.
         if (path.size() >= farsight){return;}
@@ -348,6 +411,11 @@ public class World {
         }
     }
 
+    /**
+     *
+     * @param point
+     * @param path
+     */
     private void branchPathCalc(pathCoordinate point, ArrayList<Direction> path){
         if(path.isEmpty()){return;}
         switch (path.get(path.size()-1)) {

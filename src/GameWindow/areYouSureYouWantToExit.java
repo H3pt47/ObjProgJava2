@@ -3,6 +3,10 @@ package GameWindow;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ *  Creates a Pop-Up that ask the user: AreYouSureYouWantToExit ?
+ */
+
 public class areYouSureYouWantToExit {
     private JButton No;
     private JButton Yes;

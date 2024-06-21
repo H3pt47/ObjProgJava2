@@ -5,6 +5,7 @@ import model.Direction;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class path {
     private List<Direction> _path;
     private int _length;

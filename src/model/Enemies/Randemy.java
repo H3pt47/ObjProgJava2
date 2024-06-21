@@ -5,21 +5,36 @@ import model.World;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ *  An enemy that runs randomly across the maze.
+ *
+ */
 public class Randemy implements Enemies{
 
     private static final int multChance = 50;
 
+    /** The X-coordinate of the enemy.*/
     private int _X;
+    /** The Y-coordinate of the enemy.*/
     private int _Y;
-
+    /** The starting X-coordinate of the enemy.*/
     private final int _startX;
+    /** The starting Y-coordinate of the enemy.*/
     private final int _startY;
-
+    /** The status of the enemy.*/
     private boolean _activated;
+    /** Enemy dead or alive?*/
     private boolean _dead;
-
+    /** The Direction the enemy is facing.*/
     private Direction _direction;
 
+    /**
+     *  Creates a enemy that randomly moves across the maze.
+     * @param x x-coordinate of the enemy.
+     * @param y y-coordinate of the enemy.
+     * @param activated status of the enemy.
+     * @param dead enemy dead or alive?
+     */
     public Randemy (int x, int y, Boolean activated, Boolean dead){
         _X = x;
         _Y = y;
@@ -30,6 +45,10 @@ public class Randemy implements Enemies{
         _dead = dead;
     }
 
+    /**
+     * updates the given world and moves the enemy in the chosen direction.
+     * @param world world that is updated
+     */
     @Override
     public void update(World world){
         if(_activated && !_dead){
@@ -67,6 +86,9 @@ public class Randemy implements Enemies{
         }
     }
 
+    /**
+     * reset the enemy to its starting position.
+     */
     @Override
     public void reset(){
         //_activated = false;
@@ -74,6 +96,9 @@ public class Randemy implements Enemies{
         _X = _startX;
         _Y = _startY;
     }
+
+
+    //////////////////////Getter and Setter////////////////////////////////////
     @Override
     public int getX(){
         return _X;
