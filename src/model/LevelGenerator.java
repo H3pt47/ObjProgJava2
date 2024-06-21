@@ -46,7 +46,7 @@ public class LevelGenerator {
         _enemies = new ArrayList<>();
         this._numberOfHalls = (width * height) / (54);
         _hallCoolDown = 4;
-        _spawnChance = 5 - Labyrinth.getDifficulty() * 2;
+        _spawnChance = 4 - Labyrinth.getDifficulty() * 2;
         initializeGrid();
     }
 
@@ -96,7 +96,7 @@ public class LevelGenerator {
                 removeWall(current, next);
                 if(hallMaker(current, next, stack)){
                     _numberOfHalls--;
-                };
+                }
                 stack.push(next);
                 _hallCoolDown--;
             } else {
@@ -181,7 +181,9 @@ public class LevelGenerator {
                 || !(0 < ((current.x + next.x) / 2) - 4
                 && width > ((current.x + next.x) / 2) + 4
                 && 0 < ((current.y + next.y) / 2) - 4
-                && height > ((current.y + next.y) / 2) + 4)){return false;}
+                && height > ((current.y + next.y) / 2) + 4)
+                //&& !(random.nextInt(0, (width * height) / (54 * _numberOfHalls + 1)) == 0)
+        ){return false;}
         //checks if the pair of tiles is horizontal or vertical and checks for borderPositions
         // and if a 3x3 Room can be created.
         if (current.y == next.y

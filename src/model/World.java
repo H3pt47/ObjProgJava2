@@ -46,9 +46,8 @@ public class World {
     //timing management currently not in use :(
     private static final int DELAY = 100;
 
-    /** */
+    /** Map with the Directions to the Player*/
     private Map<pathCoordinate, path> _paths;
-    private int farsight = 200;
 
     private int slashX;
     private int slashY;
@@ -312,9 +311,9 @@ public class World {
 
     /**
      *
-     * @param X X-coordinate that is checked for no walls, no bounds and no emenies.
-     * @param Y Y-coordinate that is checked for no walls, no bounds and no emenies.
-     * @return if there is no wall and no bound and no enemiy.
+     * @param X X-coordinate that is checked for no walls, no bounds and no enemies.
+     * @param Y Y-coordinate that is checked for no walls, no bounds and no enemies.
+     * @return if there is no wall and no bound and no enemy.
      */
     public boolean posCheckEnemies(int X, int Y){
         return (noWallChecker(X,Y) && boundsChecker(X,Y) && !enemyChecker(X,Y));
@@ -322,7 +321,7 @@ public class World {
 
     public boolean noDeactivatedEnemyChecker(int x, int y){
         for (Enemies e: _enemies){
-            if (e.getX() == x && e.getY() == y && !e.isActivated()){
+            if (e.getX() == x && e.getY() == y && !e.isActivated() && !e.isDead()){
                 return false;
             }
         }
@@ -355,7 +354,7 @@ public class World {
     }
 
     /**
-     * Resets the level to
+     * Resets the level to the beginning.
      */
     public void levelReset(){
         _playerDirection = Direction.NONE;
@@ -382,7 +381,7 @@ public class World {
     }
 
     /**
-     *
+     * Adds an Enemy to the Level. This Action is not permanent. A reset will revert it.
      * @param e Enemy that is added to the _enemies Array.
      */
     public void newEnemy(Enemies e){
@@ -391,7 +390,7 @@ public class World {
     }
 
     /**
-     * bro what ????
+     * calculates the Paths for every Path shorter than _foresight to the Player and saves it in a HashMap _paths.
      */
     private void calcPaths(){
         _paths = new HashMap<>();
@@ -420,13 +419,13 @@ public class World {
     }
 
     /**
-     *
+     * A Helper Method for calcPaths.
      * @param point
      * @param path
      */
     private void calcFromThisPoint(pathCoordinate point, ArrayList<Direction> path){
         //check if all routes that are necessary are calculated.
-        if (path.size() >= farsight){return;}
+        if (path.size() >= Labyrinth.getFORESIGHT()){return;}
         //check if new field is valid
         if(noWallChecker(point.x(), point.y()) && boundsChecker(point.x(), point.y())){
             //int currentX = point.x();
@@ -444,13 +443,14 @@ public class World {
     }
 
     /**
-     *
-     * @param point
-     * @param path
+     * A Helper Method for calcFromThisPoint. It calculates branching off the main path
+     * @param point The Point, from which one moves to the last
+     * @param path The current Path
      */
     private void branchPathCalc(pathCoordinate point, ArrayList<Direction> path){
         if(path.isEmpty()){return;}
         switch (path.get(path.size()-1)) {
+            //if the last Direction was Vertical you branch Left and Right.
             case UP, DOWN -> {
                 ArrayList<Direction> newPathLeft = new ArrayList<>(path);
                 newPathLeft.add(Direction.RIGHT);
@@ -460,6 +460,7 @@ public class World {
                 newPathRight.add(Direction.LEFT);
                 calcFromThisPoint(new pathCoordinate(point.x() + 1, point.y()), newPathRight);
             }
+            // if the last Direction was Horizontal you branch Up and Down.
             case LEFT, RIGHT -> {
                 ArrayList<Direction> newPathUp = new ArrayList<>(path);
                 newPathUp.add(Direction.DOWN);
@@ -475,12 +476,18 @@ public class World {
         calcFromThisPoint(new pathCoordinate(point.x() - path.get(path.size()-1).deltaX, point.y() - path.get(path.size()-1).deltaY), pathContinue);
     }
 
+    /**
+     * Resets the slash
+     */
     private void slashReset(){
         slashX = -1;
         slashY = -1;
         slashCoolDown = 0;
     }
 
+    /**
+     * Makes a slash around the Player, killing any Enemy standing in the 3x3 around him. It has a CoolDown of 6 Turns.
+     */
     public void doSlash(){
         if (slashCoolDown == 0){
             slashX = _playerX;

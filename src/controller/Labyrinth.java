@@ -56,7 +56,8 @@ public class Labyrinth {
     private static ArrayList<keyPresses> _mazeKeys;
     /** Arraylist that store the keys that can be used in the menu.*/
     private static ArrayList<keyPresses> _menuKeys;
-
+    /** The range of the PathFinding.*/
+    private static int FORESIGHT;
     /**
      * Main method that connects everything and runs the game.
      * @param args
@@ -153,7 +154,7 @@ public class Labyrinth {
     }
 
     /**
-     *  Initializes the keys that can be used in the.
+     *  Initializes the keys that can be used in the Main Menu.
      */
     private static void registerMenuKeys() {
         _menuKeys = new ArrayList<>();
@@ -161,22 +162,23 @@ public class Labyrinth {
     }
 
     /**
-     *  Sets up
+     *  Sets up all parameters
      */
     private static void paramSetup() {
         TITEL = "The lazy Labyrinth";
-        SCALE_X = 50;
-        SCALE_Y = 50;
-        SIZE_X = 17;
-        SIZE_Y = 17;
+        SCALE_X = 25;
+        SCALE_Y = 25;
+        SIZE_X = 55;
+        SIZE_Y = 35;
         DIFFICULTY = 2;
         BORDERLESS = true;
         LANGUAGE = "english";
+        FORESIGHT = 50;
         _generator = new LevelGenerator(SIZE_X,SIZE_Y);
     }
 
     /**
-     *  Loads a Level. Not used.
+     *  Generates a new Level and Loads it into the world.
      */
     public static void loadNewLevel(){
         _generator.generateMaze();
@@ -185,9 +187,6 @@ public class Labyrinth {
 
     /////////////////// GETTER AND SETTER METHODS ////////////////////////////////
 
-    public static String getLanguage(){
-        return LANGUAGE;
-    }
 
     public static int getSCALE_X(){
         return SCALE_X;
@@ -223,5 +222,9 @@ public class Labyrinth {
 
     public static ArrayList<keyPresses> getKeys(){
         return _mazeKeys;
+    }
+
+    public static int getFORESIGHT(){
+        return FORESIGHT;
     }
 }
