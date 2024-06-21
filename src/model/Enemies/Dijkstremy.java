@@ -14,19 +14,30 @@ import java.util.Random;
  */
 public class Dijkstremy implements Enemies{
 
+    /** X-coordinate of the enemy.*/
     private int _X;
+    /** Y-coordinate of the enemy.*/
     private int _Y;
-
+    /** Starting X-coordinate of the enemy.*/
     private final int _startX;
+    /** Starting Y-coordinate of the enemy.*/
     private final int _startY;
-
+    /** Satus of the enemy*/
     private boolean _activated;
+    /** Enemy dead or alive?*/
     private boolean _dead;
-
+    /** The direction the enemy is facing.*/
     private Direction _direction;
 
     private int _coolDown;
 
+    /**
+     *
+     * @param x X-coordinate of the created enemy
+     * @param y Y-coordinate of the created enemy
+     * @param activated status of the enemy
+     * @param dead enemy dead or alive?
+     */
     public Dijkstremy(int x, int y, Boolean activated, Boolean dead) {
         _X = x;
         _Y = y;
@@ -38,6 +49,10 @@ public class Dijkstremy implements Enemies{
         _coolDown = 0;
     }
 
+    /**
+     *
+     * @param world
+     */
     @Override
     public void update(World world){
         if(_activated && !_dead){

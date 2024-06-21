@@ -16,7 +16,7 @@ import values.pathCoordinate;
 /**
  * A graphical view of the world.
  */
-public class GraphicView extends JPanel implements View {
+public class GraphicView extends JPanel implements view.View {
 
     /** The width of the level in pixels. */
     private int WIDTH;
@@ -37,10 +37,13 @@ public class GraphicView extends JPanel implements View {
      */
     private Dimension fieldDimension;
 
+    /** The Controller to controll everything inside the Panel. */
     private Controller _controller;
 
+    /** The WORLD.*/
     private World _world;
 
+    /** The background. Everything that is not the world.*/
     private BufferedImage backGround;
 
     /**
@@ -59,12 +62,14 @@ public class GraphicView extends JPanel implements View {
         this.setVisible(true);
     }
 
+    /** sets the controller to a certain controller.*/
     public void setController(Controller controller){
         _controller = controller;
         calcScreenSize();
         repaint();
     }
 
+    /** calcutates the screensize */
     private void calcScreenSize(){
         this.screenSizeX = _controller.getGraphicsConfiguration().getBounds().width;
         this.screenSizeY = _controller.getGraphicsConfiguration().getBounds().height;

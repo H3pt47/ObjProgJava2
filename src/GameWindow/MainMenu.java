@@ -6,6 +6,11 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Creates the main menu with all
+ * the cool buttons the user can click.
+ */
+
 public class MainMenu {
     private JPanel menuPanel;
     private JButton exitButton;

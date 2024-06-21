@@ -22,28 +22,45 @@ import view.GraphicView;
  */
 public class Labyrinth {
 
+    /** The Titel of the Labyrinth.*/
     private static String TITEL;
+    /** The X-Scale of one cell in the world.*/
     private static int SCALE_X;
+    /** The Y-Scale of one cell in the world.*/
     private static int SCALE_Y;
+    /** Sets the borders of the world.*/
     private static Boolean BORDERLESS;
+    /** Language that can be selected.*/
     private static String LANGUAGE;
+    /** Difficulty that can be selected.*/
     private static int DIFFICULTY;
-
+    /** X-coordinate size of the world.*/
     private static int SIZE_X;
+    /** Y-coordinate sice of the world.*/
     private static int SIZE_Y;
-
+    /** Main menu of the world */
     private static MainMenu mainMenu;
+    /** The WORLD. */
     private static World world;
+    /** The Scale of the cell*/
     private static Dimension fieldDimensions;
+    /** Graphcal View of the world.*/
     private static GraphicView gview;
+    /** Console view of the world.*/
     private static ConsoleView cview;
+    /** Controller of the world to controll the player.*/
     private static Controller controller;
-
+    /** The Level generator that generates us a new level.*/
     private static LevelGenerator _generator;
-
+    /** Arraylist that stores the keys that can be used in the maze.*/
     private static ArrayList<keyPresses> _mazeKeys;
+    /** Arraylist that store the keys that can be used in the menu.*/
     private static ArrayList<keyPresses> _menuKeys;
 
+    /**
+     * Main method that connects everything and runs the game.
+     * @param args
+     */
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -120,6 +137,9 @@ public class Labyrinth {
         controller.setVisible(true);
     }
 
+    /**
+     *  Initializes the keys that can be used in the maze.
+     */
     private static void registerMazeKeys() {
         _mazeKeys = new ArrayList<>();
         _mazeKeys.add(new keyPresses("UP", KeyEvent.VK_UP, () -> world.movePlayer(Direction.UP), 0));
@@ -132,11 +152,17 @@ public class Labyrinth {
         _mazeKeys.add(new keyPresses("r", KeyEvent.VK_R, () -> world.levelReset(), 0));
     }
 
+    /**
+     *  Initializes the keys that can be used in the.
+     */
     private static void registerMenuKeys() {
         _menuKeys = new ArrayList<>();
         _menuKeys.add(new keyPresses("ESC", KeyEvent.VK_ESCAPE, () -> controller.showGame(), 0));
     }
 
+    /**
+     *  Sets up
+     */
     private static void paramSetup() {
         TITEL = "The lazy Labyrinth";
         SCALE_X = 50;
@@ -149,6 +175,9 @@ public class Labyrinth {
         _generator = new LevelGenerator(SIZE_X,SIZE_Y);
     }
 
+    /**
+     *  Loads a Level. Not used.
+     */
     public static void loadNewLevel(){
         _generator.generateMaze();
         world.newLevel(new Level(SIZE_X, SIZE_Y, "GENERATED", _generator.getWalls(), _generator.getPlayerX(), _generator.getPlayerY(), _generator.getEndX(), _generator.getEndY(), _generator.get_enemies()));

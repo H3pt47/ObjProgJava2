@@ -10,6 +10,13 @@ import java.util.Random;
 import java.util.Collections;
 import java.util.Stack;
 
+
+/**
+ *
+ * Generates a new Level with randomly placed walls.
+ *
+ */
+
 public class LevelGenerator {
     private int width, height;
     private Cell[][] grid;
@@ -25,8 +32,14 @@ public class LevelGenerator {
 
     private int _spawnChance;
 
+    /** Arraylist that store the enemies of the level.*/
     private ArrayList<Enemies> _enemies;
 
+    /**
+     * Generaties a new Level with a certain width and height.
+     * @param width widht of the level.
+     * @param height height of the level.
+     */
     public LevelGenerator(int width, int height) {
         this.width = width;
         this.height = height;
@@ -39,22 +52,10 @@ public class LevelGenerator {
         initializeGrid();
     }
 
-    public int getPlayerX(){
-        return playerX;
-    }
-    public int getPlayerY(){
-        return playerY;
-    }
-    public int getEndX(){
-        return endX;
-    }
-    public int getEndY(){
-        return endY;
-    }
-    public ArrayList<Enemies> get_enemies(){
-        return _enemies;
-    }
 
+    /**
+     *  Creates new Cells.
+     */
     private void initializeGrid() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -63,6 +64,9 @@ public class LevelGenerator {
         }
     }
 
+    /**
+     * Resets the grid .
+     */
     private void resetGrid(){
         grid = new Cell[width][height];
         walls = new ArrayList<>();
@@ -72,6 +76,10 @@ public class LevelGenerator {
         initializeGrid();
     }
 
+    /**
+     * Generates a maze.
+     * Erklär bitte bruder:(
+     */
     public void generateMaze() {
         resetGrid();
         Stack<Cell> stack = new Stack<>();
@@ -104,6 +112,11 @@ public class LevelGenerator {
         } while (grid[endX][endY].isWall);
     }
 
+    /**
+     *
+     * @param cell
+     * @return
+     */
     private Cell getRandomUnvisitedNeighbor(Cell cell) {
         ArrayList<Cell> neighbors = new ArrayList<>();
 
@@ -157,6 +170,13 @@ public class LevelGenerator {
         return remainingWalls;
     }
 
+    /**
+     *
+     * @param current
+     * @param next
+     * @param stack
+     * @return
+     */
     private boolean hallMaker(Cell current, Cell next, Stack<Cell> stack) {
         if(_numberOfHalls == 0
                 || _hallCoolDown > 0
@@ -255,6 +275,25 @@ public class LevelGenerator {
     public void recalcSpawnChance(){
         _spawnChance = 5 - Labyrinth.getDifficulty() * 2;
     }
+    /////////Getter And Settter////////////////
+
+    public int getPlayerX(){
+        return playerX;
+    }
+    public int getPlayerY(){
+        return playerY;
+    }
+    public int getEndX(){
+        return endX;
+    }
+    public int getEndY(){
+        return endY;
+    }
+    public ArrayList<Enemies> get_enemies(){
+        return _enemies;
+    }
+
+
 }
 
 class Cell {

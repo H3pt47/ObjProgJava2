@@ -6,6 +6,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
+/**
+ * The settings menu thats currently not working 100% :)
+ */
+
 public class Settings {
 
     private JDialog _dialog;

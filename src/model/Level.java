@@ -18,7 +18,6 @@ public class Level {
     private final int _startY;
     private final int _endX;
     private final int _endY;
-
     private final ArrayList<Enemies> _enemies;
 
     /**
@@ -44,6 +43,8 @@ public class Level {
         _endY = endY;
         _enemies = enemies;
     }
+
+    ///////////////////Getter and Setter /////////////////////////////////////
 
     public int getLenX() {
         return _lenX;

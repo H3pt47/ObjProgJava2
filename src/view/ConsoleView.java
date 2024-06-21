@@ -13,6 +13,11 @@ import java.util.List;
  */
 public class ConsoleView implements View {
 
+    /**
+     * Creates and updates the console view with '#' for rows, 'W' for walls,
+     * 'T' for target, E for enemy.
+     * @param world updates the given world.
+     */
     @Override
     public void update(World world) {
         // The player's position
@@ -43,11 +48,22 @@ public class ConsoleView implements View {
         System.out.println();
     }
 
+    /**
+     * Updates the world.
+     * @param world the given world.
+     */
     @Override
     public void newLevel(World world) {
         update(world);
     }
 
+    /**
+     * Checks if an enemy is at a given x-and y coordinate.
+     * @param enemies Arraylist of enemeies.
+     * @param x x-coordinate.
+     * @param y y-coordinate.
+     * @return If an enemy is at a given x-and y coordinate.
+     */
     private Boolean isEnemy(List<Enemies> enemies, int x, int y){
         for (Enemies e : enemies) {
             if (e.getX() == x && e.getY() == y){
