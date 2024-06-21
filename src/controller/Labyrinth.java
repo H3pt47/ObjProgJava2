@@ -29,8 +29,8 @@ public class Labyrinth {
     private static String LANGUAGE;
     private static int DIFFICULTY;
 
-    private static ArrayList<Level> _levels;
-    private static int _currentLevel;
+    private static int SIZE_X;
+    private static int SIZE_Y;
 
     private static MainMenu mainMenu;
     private static World world;
@@ -38,6 +38,8 @@ public class Labyrinth {
     private static GraphicView gview;
     private static ConsoleView cview;
     private static Controller controller;
+
+    private static LevelGenerator _generator;
 
     private static ArrayList<keyPresses> _mazeKeys;
     private static ArrayList<keyPresses> _menuKeys;
@@ -50,21 +52,23 @@ public class Labyrinth {
                 paramSetup();
 
                 // Create a new game world.
-                world = new World(_levels.get(0));
+                _generator.generateMaze();
+
+                world = new World(new Level(SIZE_X, SIZE_Y, "GENERATED", _generator.getWalls(), _generator.getPlayerX(), _generator.getPlayerY(), _generator.getEndX(), _generator.getEndY(), new ArrayList<Enemies>()));
 
                 // Size of a field in the graphical view.
                 fieldDimensions = new Dimension(SCALE_X, SCALE_Y);
                 // Create and register graphical view.
                 gview = new GraphicView(
-                        _levels.get(0).getLenX() * fieldDimensions.width,
-                        _levels.get(0).getLenY() * fieldDimensions.height,
+                        world.getWidth() * fieldDimensions.width,
+                        world.getHeight() * fieldDimensions.height,
                         fieldDimensions,
                         world);
                 world.registerView(gview);
 
                 // Create and register console view.
                 cview = new ConsoleView();
-                //world.registerView(cview);
+                world.registerView(cview);
 
                 // Register Keys
                 registerMazeKeys();
@@ -86,6 +90,12 @@ public class Labyrinth {
 
     /////////////////// HELPER METHODS ////////////////////////////////
 
+    /**
+     * Sets up the controller with the right settings.
+     * @param world The world in which the level gets loaded
+     * @param gview
+     * @param mainMenu
+     */
     private static void setupController(World world, GraphicView gview, MainMenu mainMenu){
         controller = new Controller(world, gview, mainMenu, _mazeKeys, _menuKeys);
         controller.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -129,53 +139,17 @@ public class Labyrinth {
         TITEL = "The lazy Labyrinth";
         SCALE_X = 25;
         SCALE_Y = 25;
+        SIZE_X = 23;
+        SIZE_Y = 23;
         DIFFICULTY = 0;
-        _currentLevel = 0;
         BORDERLESS = true;
         LANGUAGE = "english";
-        ArrayList<Wall> walls = new ArrayList<>();
-        walls.add(new Wall(1,1));
-        walls.add(new Wall(2,2));
-        walls.add(new Wall(3,3));
-        walls.add(new Wall(4,4));
-        walls.add(new Wall(5,6));
-        walls.add(new Wall(6,7));
-
-        //TESTLEVEL
-        ArrayList<Wall> walls2 = new ArrayList<>();
-        walls2.add(new Wall(2,2));
-        walls2.add(new Wall(3,3));
-        ArrayList<Enemies> enemies = new ArrayList<>();
-        enemies.add(new Dijkstremy(4,0, true, false));
-        Level test = new Level(5, 5, "TEST", walls2, 0, 0, 4, 4, enemies);
-
-        ArrayList<Enemies> enemies1 = new ArrayList<>();
-        //enemies1.add(new Randemy(0, 7, true, false));
-        //enemies1.add(new Randemy(1, 7, true, false));
-        enemies1.add(new Dijkstremy(22, 10, true, false));
-        ArrayList<Enemies> enemies2 = new ArrayList<>();
-        enemies2.add(new Randemy(2, 7, true, false));
-
-        Level level1 = new Level(30, 30, "LEVEL1", walls, 0, 0, 10, 10, enemies1);
-        Level level2 = new Level(10, 10, "LEVEL2", walls, 0, 0, 5, 5, enemies2);
-        _levels = new ArrayList<>();
-        _levels.add(test);
-        _levels.add(level1);
-        _levels.add(level2);
+        _generator = new LevelGenerator(SIZE_X,SIZE_Y);
     }
 
-    public static void loadLevel(int levelIndex){
-        world.newLevel(_levels.get(levelIndex));
-    }
-
-    public static void loadNextLevel(){
-        _currentLevel++;
-        if (_currentLevel < _levels.size()){
-            loadLevel(_currentLevel);
-        } else{
-            //TODO WIN SYSTEM
-            System.exit(0);
-        }
+    public static void loadNewLevel(){
+        _generator.generateMaze();
+        world.newLevel(new Level(SIZE_X, SIZE_Y, "GENERATED", _generator.getWalls(), _generator.getPlayerX(), _generator.getPlayerY(), _generator.getEndX(), _generator.getEndY(), _generator.get_enemies()));
     }
 
     /////////////////// GETTER AND SETTER METHODS ////////////////////////////////
@@ -219,6 +193,4 @@ public class Labyrinth {
     public static ArrayList<keyPresses> getKeys(){
         return _mazeKeys;
     }
-
-    //TODO multiple Screens
 }

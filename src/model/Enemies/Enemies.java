@@ -17,4 +17,8 @@ public interface Enemies {
 
     Boolean isDead();
 
+    Boolean isActivated();
+
+    void setActivated(boolean activated);
+
 }

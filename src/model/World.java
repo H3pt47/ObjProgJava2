@@ -46,7 +46,7 @@ public class World {
     private static final int DELAY = 100;
 
     private Map<pathCoordinate, path> _paths;
-    private int farsight = 10;
+    private int farsight = 20;
 
     /**
      * Creates a new world with the given level.
@@ -71,6 +71,8 @@ public class World {
 
         this._enemies = new CopyOnWriteArrayList<>(level.getEnemies());
 
+        this._paths = new HashMap<>();
+        calcPaths();
         this._userInputEnabled = true;
     }
 
@@ -180,23 +182,17 @@ public class World {
     public void movePlayer(Direction direction) {
         if (_userInputEnabled){
             _userInputEnabled = false;
-            //checks for change of direction
-            if (_playerDirection != direction){
-                _playerDirection = direction;
-                updateViews();
-            } else{
-                // The direction tells us exactly how much we need to move along
-                // every direction
-                _playerDirection = direction;
-                setPlayerX(getPlayerX() + direction.deltaX);
-                setPlayerY(getPlayerY() + direction.deltaY);
-                if(enemyChecker(_playerX, _playerY)){
-                    levelReset();
-                }
-                calcPaths();
-                moveEnemies();
-                updateViews();
+            // The direction tells us exactly how much we need to move along
+            // every direction
+            _playerDirection = direction;
+            setPlayerX(getPlayerX() + direction.deltaX);
+            setPlayerY(getPlayerY() + direction.deltaY);
+            if(enemyChecker(_playerX, _playerY)){
+                levelReset();
             }
+            calcPaths();
+            moveEnemies();
+            updateViews();
             _userInputEnabled = true;
         }
 
@@ -225,7 +221,7 @@ public class World {
         }
         //If end was reached
         if (this._playerX == this._endX && this._playerY == this._endY) {
-            Labyrinth.loadNextLevel();
+            Labyrinth.loadNewLevel();
         }
     }
 
@@ -274,6 +270,8 @@ public class World {
         this._endX = level.getEndX();
         this._endY = level.getEndY();
         this._enemies = new CopyOnWriteArrayList<>(level.getEnemies());
+        _paths.clear();
+        calcPaths();
         for (View view : views) {
             view.newLevel(this);
         }
@@ -286,6 +284,8 @@ public class World {
         _playerY = _level.getStartY();
         this._enemies = new CopyOnWriteArrayList<>(_level.getEnemies());
         _enemies.forEach(Enemies::reset);
+        _paths.clear();
+        calcPaths();
         updateViews();
     }
 
@@ -334,50 +334,44 @@ public class World {
         if (path.size() >= farsight){return;}
         //check if new field is valid
         if(noWallChecker(point.x(), point.y()) && boundsChecker(point.x(), point.y())){
-            int currentX = point.x();
-            int currentY = point.y();
-            boolean shouldContinue = true;
+            //int currentX = point.x();
+            //int currentY = point.y();
+            //boolean shouldContinue = true;
 
-            while (noWallChecker(currentX, currentY) && boundsChecker(currentX, currentY) && shouldContinue) {
-                shouldContinue = false;
-                pathCoordinate currentCoord = new pathCoordinate(currentX, currentY);
-
-                if (!_paths.containsKey(currentCoord)) {
-                    _paths.put(currentCoord, new path(new ArrayList<>(path)));
-                    shouldContinue = true;
-                } else if (_paths.get(currentCoord).getLength() > path.size()){
-                    _paths.get(currentCoord).setPath(new ArrayList<>(path));
-                    shouldContinue = true;
-                }
-
-                if (shouldContinue) {
-                    Direction lastDirection = path.get(path.size() - 1);
-
-                    switch (lastDirection) {
-                        case UP, DOWN -> {
-                            ArrayList<Direction> newPathLeft = new ArrayList<>(path);
-                            newPathLeft.add(Direction.RIGHT);
-                            calcFromThisPoint(new pathCoordinate(currentX - 1, currentY), newPathLeft);
-
-                            ArrayList<Direction> newPathRight = new ArrayList<>(path);
-                            newPathRight.add(Direction.LEFT);
-                            calcFromThisPoint(new pathCoordinate(currentX + 1, currentY), newPathRight);
-                        }
-                        case LEFT, RIGHT -> {
-                            ArrayList<Direction> newPathUp = new ArrayList<>(path);
-                            newPathUp.add(Direction.DOWN);
-                            calcFromThisPoint(new pathCoordinate(currentX, currentY - 1), newPathUp);
-
-                            ArrayList<Direction> newPathDown = new ArrayList<>(path);
-                            newPathDown.add(Direction.UP);
-                            calcFromThisPoint(new pathCoordinate(currentX, currentY + 1), newPathDown);
-                        }
-                    }
-                    currentX -= lastDirection.deltaX;
-                    currentY -= lastDirection.deltaY;
-                    path.add(lastDirection);
-                }
+            if (!_paths.containsKey(point)) {
+                _paths.put(point, new path(new ArrayList<>(path)));
+                branchPathCalc(point, path);
+            } else if (_paths.get(point).getLength() > path.size()){
+                _paths.get(point).setPath(new ArrayList<>(path));
+                branchPathCalc(point, path);
             }
         }
+    }
+
+    private void branchPathCalc(pathCoordinate point, ArrayList<Direction> path){
+        if(path.isEmpty()){return;}
+        switch (path.get(path.size()-1)) {
+            case UP, DOWN -> {
+                ArrayList<Direction> newPathLeft = new ArrayList<>(path);
+                newPathLeft.add(Direction.RIGHT);
+                calcFromThisPoint(new pathCoordinate(point.x() - 1, point.y()), newPathLeft);
+
+                ArrayList<Direction> newPathRight = new ArrayList<>(path);
+                newPathRight.add(Direction.LEFT);
+                calcFromThisPoint(new pathCoordinate(point.x() + 1, point.y()), newPathRight);
+            }
+            case LEFT, RIGHT -> {
+                ArrayList<Direction> newPathUp = new ArrayList<>(path);
+                newPathUp.add(Direction.DOWN);
+                calcFromThisPoint(new pathCoordinate(point.x(), point.y() - 1), newPathUp);
+
+                ArrayList<Direction> newPathDown = new ArrayList<>(path);
+                newPathDown.add(Direction.UP);
+                calcFromThisPoint(new pathCoordinate(point.x(), point.y() + 1), newPathDown);
+            }
+        }
+        ArrayList<Direction> pathContinue = new ArrayList<>(path);
+        pathContinue.add(path.get(path.size()-1));
+        calcFromThisPoint(new pathCoordinate(point.x() - path.get(path.size()-1).deltaX, point.y() - path.get(path.size()-1).deltaY), pathContinue);
     }
 }

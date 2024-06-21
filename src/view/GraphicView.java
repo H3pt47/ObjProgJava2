@@ -6,9 +6,12 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import controller.Controller;
+import model.Direction;
 import model.Enemies.Enemies;
 import model.Wall;
 import model.World;
+import values.path;
+import values.pathCoordinate;
 
 /**
  * A graphical view of the world.
@@ -91,7 +94,7 @@ public class GraphicView extends JPanel implements View {
         }
         //actually drawing the background
         g.drawImage(backGround, 0, 0, screenSizeX, screenSizeY, null);
-
+        drawPlayerTrackings(g);
         drawEnemies(g);
 
         // draw player
@@ -169,11 +172,20 @@ public class GraphicView extends JPanel implements View {
                 player.y  + _offSetY + ((player.height + _world.getPlayerDirection().deltaY * fieldDimension.height)/2));
     }
 
-    private void drawWall(Graphics2D g2d, int posX, int posY, int width, int height){
+    private void drawWall(Graphics2D g2d, int posX, int posY, int width, int height) {
         g2d.setColor(Color.LIGHT_GRAY);
         g2d.fillRect(posX, posY, width, height);
         g2d.setColor(Color.GRAY);
-        g2d.drawRect(posX, posY, width - 1, height - 1);
+        g2d.drawRect(posX, posY, width, height);
+
+        g2d.drawLine(posX, posY + height / 3, posX + width, posY + height / 3);
+        g2d.drawLine(posX, (int) (posY + height / 1.5), posX + width, (int) (posY + height / 1.5));
+        g2d.drawLine(posX + width / 4, posY, posX + width / 4, posY + height / 3);
+        g2d.drawLine((int) (posX + 0.75 * width), posY, (int) (posX + 0.75 * width), posY + height / 3);
+        g2d.drawLine((int) (posX + width / 2), posY + height / 3, (int) (posX + width / 2), (int) (posY + 0.66 * height));
+        g2d.drawLine(posX + width / 4, (int) (posY + 0.66 * height), posX + width / 4, posY + height);
+        g2d.drawLine((int) (posX + 0.75 * width), (int) (posY + 0.66 * height), (int) (posX + 0.75 * width), posY + height);
+
     }
 
     private void drawEndField(Graphics2D g2d, int posX, int posY, int width, int height){
@@ -193,5 +205,36 @@ public class GraphicView extends JPanel implements View {
         if(e.isDead()){
             g.drawString("Dead", posX, posY);
         }
+    }
+
+    private void drawPlayerTrackings(Graphics g){
+        if (_world.getPaths() != null){
+            for(pathCoordinate p:_world.getPaths().keySet()){
+            drawPlayerTracking(g, p.x() * fieldDimension.width + _offSetX + (fieldDimension.width / 4), p.y() * fieldDimension.height + _offSetY + (fieldDimension.height / 4),
+                    fieldDimension.width / 2, fieldDimension.height / 2, _world.getPaths().get(p));
+
+            }
+        }
+    }
+
+    private void drawPlayerTracking(Graphics g, int posX, int posY, int width, int height, path p){
+        Direction dir = p.getPath().get(p.getLength()-1);
+        g.setColor(Color.BLUE);
+        g.drawRect(posX, posY, width, height);
+        switch (dir){
+            case LEFT:
+                g.drawPolygon(new Polygon(new int[]{posX, posX, posX - width / 2}, new int[]{posY, posY + height, posY + height / 2}, 3));
+                break;
+            case RIGHT:
+                g.drawPolygon(new Polygon(new int[]{posX + width, posX + width, posX + width + width / 2}, new int[]{posY, posY + height, posY + height / 2}, 3));
+                break;
+            case UP:
+                g.drawPolygon(new Polygon(new int[]{posX, posX + width, posX + width / 2}, new int[]{posY, posY, posY - height / 2}, 3));
+                break;
+            case DOWN:
+                g.drawPolygon(new Polygon(new int[]{posX, posX + width, posX + width / 2}, new int[]{posY + height, posY + height, posY + height + height / 2}, 3));
+                break;
+        }
+
     }
 }
