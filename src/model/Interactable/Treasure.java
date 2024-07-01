@@ -2,6 +2,7 @@ package model.Interactable;
 
 import java.awt.*;
 import java.util.List;
+import model.World;
 
 public class Treasure implements Interactable {
     private String _text;
@@ -17,8 +18,8 @@ public class Treasure implements Interactable {
     }
 
     @Override
-    public void interact() {
-        System.out.println(_text);
+    public void interact(World world) {
+        world.setCanSeePath(true);
     }
 
     @Override

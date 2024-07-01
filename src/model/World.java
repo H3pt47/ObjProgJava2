@@ -46,6 +46,8 @@ public class World {
     private List<Enemies> _enemies;
     /** A Map of Interactable objects*/
     private Map<coordinate, Interactable> _interactables;
+    /** If you can see the path to the end */
+    private boolean _canSeePath;
     /** Boolean that allows user input*/
     private Boolean _userInputEnabled;
 
@@ -86,6 +88,8 @@ public class World {
         this._enemies = new CopyOnWriteArrayList<>(level.getEnemies());
 
         this._interactables = level.get_interactables();
+
+        this._canSeePath = false;
 
         this._paths = new HashMap<>();
         calcPaths();
@@ -225,6 +229,14 @@ public class World {
         return _interactables;
     }
 
+    public boolean getCanSeePath() {
+        return _canSeePath;
+    }
+
+    public void setCanSeePath(boolean canSeePath) {
+        _canSeePath = canSeePath;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Player Management
 
@@ -237,12 +249,7 @@ public class World {
         if (_userInputEnabled){
             _userInputEnabled = false;
 
-            //SLASHING Logic
-            if (slashCoolDown > 0){
-                slashCoolDown--;
-            } else{
-                slashReset();
-            }
+            doSlashCooldown();
 
             coordinate tempPosition = new coordinate(_playerX, _playerY);
 
@@ -384,6 +391,7 @@ public class World {
         this._didPlayerMove = false;
 
         this._interactables = level.get_interactables();
+        this._canSeePath = false;
 
         _paths.clear();
         calcPaths();
@@ -398,18 +406,22 @@ public class World {
      * Resets the level to the beginning.
      */
     public void levelReset(){
+        //Player
         _playerDirection = Direction.NONE;
         _playerX = _level.getStartX();
         _playerY = _level.getStartY();
+        this._didPlayerMove = false;
+        //Enemies
         this._enemies = new CopyOnWriteArrayList<>(_level.getEnemies());
         _enemies.forEach(Enemies::reset);
-
-        this._playerDirection = Direction.NONE;
-        this._didPlayerMove = false;
-
+        //Pathing
         _paths.clear();
         calcPaths();
+
+        this._canSeePath = false;
+        //Slash
         slashReset();
+
         updateViews();
     }
     ///////////////////// ENEMIES ////////////////////////
@@ -535,7 +547,6 @@ public class World {
         Map<coordinate, Direction> pathToEnd = new HashMap<>();
         coordinate prevPos = new coordinate(_endX, _endY);
         coordinate currentPos = new coordinate(_endX + _paths.get(prevPos).getDirection().deltaX, _endY + _paths.get(prevPos).getDirection().deltaY);
-        Direction currentDirection;
         while (currentPos.x() != _playerX || currentPos.y() != _playerY){
 
             pathToEnd.put(currentPos, Direction.getOppositeDirection(_paths.get(prevPos).getDirection()));
@@ -577,6 +588,14 @@ public class World {
         }
     }
 
+    private void doSlashCooldown(){
+        if (slashCoolDown > 0){
+            slashCoolDown--;
+        } else{
+            slashReset();
+        }
+    }
+
     ////////////////////////// INTERACTABLE ///////////////////////////
 
     /**
@@ -585,7 +604,10 @@ public class World {
     public void doInteraction(){
         coordinate c = new coordinate(_playerX + _playerDirection.deltaX, _playerY + _playerDirection.deltaY);
         if (_interactables.containsKey(c)){
-            _interactables.get(c).interact();
+            _interactables.get(c).interact(this);
         }
+        this.doSlashCooldown();
+        this.moveEnemies();
+        this.updateViews();
     }
 }

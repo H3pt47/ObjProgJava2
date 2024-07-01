@@ -101,7 +101,9 @@ public class GraphicView extends JPanel implements view.View {
         g.drawImage(backGround, 0, 0, screenSizeX, screenSizeY, null);
 
         //drawPlayerTrackings(g);
-        drawPathToEnd(g);
+        if(_world.getCanSeePath()){
+            drawPathToEnd(g);
+        }
 
         drawEnemies(g);
 
@@ -173,7 +175,7 @@ public class GraphicView extends JPanel implements view.View {
         //paint the End field
         drawEndField(g2d, _world.getEndX() * fieldDimension.width + _offSetX, _world.getEndY() * fieldDimension.height + _offSetY, fieldDimension.width, fieldDimension.height);
 
-        drawInteractables(g2d);
+        drawInteractable(g2d);
 
         //Controls on the side [COMING SOON]
         //g2d.drawString()
@@ -308,7 +310,7 @@ public class GraphicView extends JPanel implements view.View {
         g.drawRect(x - sizeX / 2, y - sizeY / 2, sizeX, sizeY);
     }
 
-    private void drawInteractables(Graphics2D g){
+    private void drawInteractable(Graphics2D g){
         Interactable i;
         for(coordinate c: _world.get_interactables().keySet()){
             i = _world.get_interactables().get(c);

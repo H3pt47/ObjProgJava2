@@ -55,8 +55,6 @@ public class Labyrinth {
     private static ArrayList<keyPresses> _mazeKeys;
     /** Arraylist that store the keys that can be used in the menu.*/
     private static ArrayList<keyPresses> _menuKeys;
-    /** The range of the PathFinding.*/
-    private static int FORESIGHT;
     /**
      * Main method that connects everything and runs the game.
      * @param args
@@ -184,7 +182,6 @@ public class Labyrinth {
         DIFFICULTY = 2;
         BORDERLESS = true;
         LANGUAGE = "english";
-        FORESIGHT = 50;
         _generator = new LevelGenerator(SIZE_X,SIZE_Y);
     }
 
@@ -233,9 +230,5 @@ public class Labyrinth {
 
     public static ArrayList<keyPresses> getKeys(){
         return _mazeKeys;
-    }
-
-    public static int getFORESIGHT(){
-        return FORESIGHT;
     }
 }
