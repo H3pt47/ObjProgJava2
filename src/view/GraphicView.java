@@ -6,12 +6,12 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import controller.Controller;
-import model.Direction;
+import model.Interactable.Interactable;
+import values.Direction;
 import model.Enemies.Enemies;
-import model.Wall;
+import values.Wall;
 import model.World;
-import values.path;
-import values.pathCoordinate;
+import values.coordinate;
 
 /**
  * A graphical view of the world.
@@ -99,7 +99,10 @@ public class GraphicView extends JPanel implements view.View {
         }
         //actually drawing the background
         g.drawImage(backGround, 0, 0, screenSizeX, screenSizeY, null);
-        drawPlayerTrackings(g);
+
+        //drawPlayerTrackings(g);
+        drawPathToEnd(g);
+
         drawEnemies(g);
 
         if(_world.getSlashX() != -1 && _world.getSlashY() != -1){
@@ -169,6 +172,8 @@ public class GraphicView extends JPanel implements view.View {
 
         //paint the End field
         drawEndField(g2d, _world.getEndX() * fieldDimension.width + _offSetX, _world.getEndY() * fieldDimension.height + _offSetY, fieldDimension.width, fieldDimension.height);
+
+        drawInteractables(g2d);
 
         //Controls on the side [COMING SOON]
         //g2d.drawString()
@@ -262,19 +267,18 @@ public class GraphicView extends JPanel implements view.View {
     }
 
     private void drawPlayerTrackings(Graphics g){
+        g.setColor(Color.WHITE);
         if (_world.getPaths() != null){
-            for(pathCoordinate p:_world.getPaths().keySet()){
+            for(coordinate p:_world.getPaths().keySet()){
             drawPlayerTracking(g, p.x() * fieldDimension.width + _offSetX + (fieldDimension.width / 4), p.y() * fieldDimension.height + _offSetY + (fieldDimension.height / 4),
-                    fieldDimension.width / 2, fieldDimension.height / 2, _world.getPaths().get(p));
+                    fieldDimension.width / 2, fieldDimension.height / 2, _world.getPaths().get(p).getDirection());
 
             }
         }
     }
 
-    private void drawPlayerTracking(Graphics g, int posX, int posY, int width, int height, path p){
-        Direction dir = p.getPath().get(p.getLength()-1);
-        g.setColor(Color.BLUE);
-        g.drawRect(posX, posY, width, height);
+    private void drawPlayerTracking(Graphics g, int posX, int posY, int width, int height, Direction dir){
+        //g.drawRect(posX, posY, width, height);
         switch (dir){
             case LEFT:
                 g.drawPolygon(new Polygon(new int[]{posX, posX, posX - width / 2}, new int[]{posY, posY + height, posY + height / 2}, 3));
@@ -289,10 +293,26 @@ public class GraphicView extends JPanel implements view.View {
                 g.drawPolygon(new Polygon(new int[]{posX, posX + width, posX + width / 2}, new int[]{posY + height, posY + height, posY + height + height / 2}, 3));
                 break;
         }
-
     }
+
+    private void drawPathToEnd(Graphics g){
+        g.setColor(Color.GREEN);
+        for(coordinate p: _world.getPathToEnd().keySet()){
+            drawPlayerTracking(g, p.x() * fieldDimension.width + _offSetX + (fieldDimension.width / 4), p.y() * fieldDimension.height + _offSetY + (fieldDimension.height / 4),
+                    fieldDimension.width / 2, fieldDimension.height / 2, _world.getPathToEnd().get(p));
+        }
+    }
+
     private void drawSlash(Graphics g, int x, int y, int sizeX, int sizeY){
         g.setColor(Color.CYAN);
         g.drawRect(x - sizeX / 2, y - sizeY / 2, sizeX, sizeY);
+    }
+
+    private void drawInteractables(Graphics2D g){
+        Interactable i;
+        for(coordinate c: _world.get_interactables().keySet()){
+            i = _world.get_interactables().get(c);
+            i.draw(g, c.x() * fieldDimension.width + _offSetX, c.y() * fieldDimension.height + _offSetY, fieldDimension.width, fieldDimension.height);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package model;
+package values;
 
 /**
  * Represents a direction in the game.
@@ -29,5 +29,15 @@ public enum Direction {
     Direction(int deltaX, int deltaY) {
         this.deltaX = deltaX;
         this.deltaY = deltaY;
+    }
+
+    public static Direction getOppositeDirection(Direction direction) {
+        return switch (direction) {
+            case UP -> DOWN;
+            case DOWN -> UP;
+            case LEFT -> RIGHT;
+            case RIGHT -> LEFT;
+            default -> NONE;
+        };
     }
 }

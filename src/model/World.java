@@ -5,8 +5,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import controller.Labyrinth;
 import model.Enemies.Enemies;
+import model.Interactable.Interactable;
+import model.level.Level;
+import values.Direction;
+import values.Wall;
 import values.path;
-import values.pathCoordinate;
+import values.coordinate;
 import view.View;
 
 /**
@@ -25,7 +29,7 @@ public class World {
     /** The player's y position in the world. */
     private int _playerY;
     /** The direction the player is facing.*/
-    private model.Direction _playerDirection;
+    private Direction _playerDirection;
     /** The end X - coordinate of the world*/
     private int _endX;
     /** The end Y - coordinate of the world*/
@@ -40,15 +44,20 @@ public class World {
     private Level _level;
     /** A list that stores enemies*/
     private List<Enemies> _enemies;
-    /** Boolean that allows userinput*/
+    /** A Map of Interactable objects*/
+    private Map<coordinate, Interactable> _interactables;
+    /** Boolean that allows user input*/
     private Boolean _userInputEnabled;
 
     //timing management currently not in use :(
     private static final int DELAY = 100;
 
     /** Map with the Directions to the Player*/
-    private Map<pathCoordinate, path> _paths;
+    private Map<coordinate, path> _paths;
+    //Boolean to recalculate the pathfinding
+    private boolean _didPlayerMove = false;
 
+    //Slashing
     private int slashX;
     private int slashY;
     private int slashCoolDown;
@@ -75,6 +84,8 @@ public class World {
         this._level = level;
 
         this._enemies = new CopyOnWriteArrayList<>(level.getEnemies());
+
+        this._interactables = level.get_interactables();
 
         this._paths = new HashMap<>();
         calcPaths();
@@ -105,7 +116,6 @@ public class World {
 
     /**
      * Returns the player's x position.
-     *
      * @return the player's x position.
      */
     public int getPlayerX() {
@@ -114,7 +124,6 @@ public class World {
 
     /**
      * Sets the player's x position.
-     *
      * @param playerX the player's x position.
      */
     public void setPlayerX(int playerX) {
@@ -122,7 +131,7 @@ public class World {
         playerX = Math.max(0, playerX);
         playerX = Math.min(getWidth() - 1, playerX);
         //check for valid position e.g. no wall
-        if(noWallChecker(playerX, _playerY) && noDeactivatedEnemyChecker(playerX, _playerY)){
+        if(noWallChecker(playerX, _playerY) && noDeactivatedEnemyChecker(playerX, _playerY) && noInteractableChecker(playerX, _playerY)){
             this._playerX = playerX;
         }
 
@@ -145,7 +154,7 @@ public class World {
     public void setPlayerY(int playerY) {
         playerY = Math.max(0, playerY);
         playerY = Math.min(getHeight() - 1, playerY);
-        if(noWallChecker(_playerX, playerY) && noDeactivatedEnemyChecker(_playerX, playerY)){
+        if(noWallChecker(_playerX, playerY) && noDeactivatedEnemyChecker(_playerX, playerY) && noInteractableChecker(_playerX, playerY)){
             this._playerY = playerY;
         }
     }
@@ -196,11 +205,10 @@ public class World {
     }
 
     /**
-     *
-     *
-     * @return weiss selber nicht.
+     * Getter method for the Paths map.
+     * @return The Map, where the key is a coordinate and the item is a path, containing the Direction to go to the player and the distance to them.
      */
-    public Map<pathCoordinate, path> getPaths() {
+    public Map<coordinate, path> getPaths() {
         return _paths;
     }
     public int getSlashX(){
@@ -211,6 +219,10 @@ public class World {
     }
     public int getSlashCoolDown(){
         return slashCoolDown;
+    }
+
+    public Map<coordinate, Interactable> get_interactables() {
+        return _interactables;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -225,11 +237,14 @@ public class World {
         if (_userInputEnabled){
             _userInputEnabled = false;
 
+            //SLASHING Logic
             if (slashCoolDown > 0){
                 slashCoolDown--;
             } else{
                 slashReset();
             }
+
+            coordinate tempPosition = new coordinate(_playerX, _playerY);
 
             // The direction tells us exactly how much we need to move along
             // every direction
@@ -238,10 +253,13 @@ public class World {
             setPlayerY(getPlayerY() + direction.deltaY);
             if(enemyChecker(_playerX, _playerY)){
                 levelReset();
+            } else{
+                _didPlayerMove = !tempPosition.equals(new coordinate(_playerX, _playerY));
+                calcPaths();
+                moveEnemies();
+                updateViews();
             }
-            calcPaths();
-            moveEnemies();
-            updateViews();
+
             _userInputEnabled = true;
         }
 
@@ -274,6 +292,7 @@ public class World {
         }
     }
 
+    //////////////////////////Checker for Things///////////////////////////
     /**
      *
      * @param X The X-coordinate that should be checked for enemies
@@ -329,7 +348,23 @@ public class World {
     }
 
     /**
-     *
+     * This method checks for no interactable object on the target field.
+     * @param x The X coordinate
+     * @param y The Y coordinate
+     * @return True if no interactable at the tile, false otherwise.
+     */
+    public boolean noInteractableChecker(int x, int y){
+        return !_interactables.containsKey(new coordinate(x,y));
+    }
+
+    public boolean validTileChecker(int x, int y){
+        return noWallChecker(x,y) && boundsChecker(x,y) && noInteractableChecker(x,y);
+    }
+
+    ////////////////// LOADING AND RELOADING //////////////////////
+
+    /**
+     * Opens a new Level in the world.
      * @param level the level that is created.
      */
     public void newLevel(Level level){
@@ -344,6 +379,12 @@ public class World {
         this._endX = level.getEndX();
         this._endY = level.getEndY();
         this._enemies = new CopyOnWriteArrayList<>(level.getEnemies());
+
+        this._playerDirection = Direction.NONE;
+        this._didPlayerMove = false;
+
+        this._interactables = level.get_interactables();
+
         _paths.clear();
         calcPaths();
         slashReset();
@@ -362,12 +403,16 @@ public class World {
         _playerY = _level.getStartY();
         this._enemies = new CopyOnWriteArrayList<>(_level.getEnemies());
         _enemies.forEach(Enemies::reset);
+
+        this._playerDirection = Direction.NONE;
+        this._didPlayerMove = false;
+
         _paths.clear();
         calcPaths();
         slashReset();
         updateViews();
     }
-
+    ///////////////////// ENEMIES ////////////////////////
     /**
      *  Moves the enemies.
      */
@@ -389,92 +434,120 @@ public class World {
         updateViews();
     }
 
+    /////////////////////////// PATHING ///////////////////////////
+
     /**
-     * calculates the Paths for every Path shorter than _foresight to the Player and saves it in a HashMap _paths.
+     * calculates the Paths for every Path to the Player and saves it in a HashMap _paths.
      */
     private void calcPaths(){
-        _paths = new HashMap<>();
-        pathCoordinate pc = new pathCoordinate(_playerX, _playerY);
-        List<Direction> l = new ArrayList<>();
-        l.add(Direction.NONE);
-        path p = new path(l);
-        _paths.put(pc, p);
-        //left
-        ArrayList<Direction> left = new ArrayList<>(l);
-        left.add(Direction.RIGHT);
-        calcFromThisPoint(new pathCoordinate(_playerX - 1, _playerY), left);
-        //right
-        ArrayList<Direction> right = new ArrayList<>(l);
-        right.add(Direction.LEFT);
-        calcFromThisPoint(new pathCoordinate(_playerX + 1, _playerY), right);
-        //up
-        ArrayList<Direction> up = new ArrayList<>(l);
-        up.add(Direction.DOWN);
-        calcFromThisPoint(new pathCoordinate(_playerX, _playerY - 1), up);
-        //down
-        ArrayList<Direction> down = new ArrayList<>(l);
-        down.add(Direction.UP);
-        calcFromThisPoint(new pathCoordinate(_playerX, _playerY + 1), down);
+        if (_didPlayerMove){
+            recalculatePathsExtended();
+        } else if (_paths.isEmpty()){
+            initiatePaths();
+            recalculatePathsExtended();
+        }
 
     }
 
-    /**
-     * A Helper Method for calcPaths.
-     * @param point
-     * @param path
-     */
-    private void calcFromThisPoint(pathCoordinate point, ArrayList<Direction> path){
-        //check if all routes that are necessary are calculated.
-        if (path.size() >= Labyrinth.getFORESIGHT()){return;}
-        //check if new field is valid
-        if(noWallChecker(point.x(), point.y()) && boundsChecker(point.x(), point.y())){
-            //int currentX = point.x();
-            //int currentY = point.y();
-            //boolean shouldContinue = true;
+    private void initiatePaths(){
+        Queue<coordinate> queue = new LinkedList<>();
+        coordinate playerPosition = new coordinate(_playerX, _playerY);
+        _paths.put(playerPosition, new path(Direction.NONE, 1));
+        queue.add(playerPosition);
+        int currentLength;
+        while (!queue.isEmpty()){
+            coordinate current = queue.poll();
+            currentLength = _paths.get(current).getLength();
 
-            if (!_paths.containsKey(point)) {
-                _paths.put(point, new path(new ArrayList<>(path)));
-                branchPathCalc(point, path);
-            } else if (_paths.get(point).getLength() > path.size()){
-                _paths.get(point).setPath(new ArrayList<>(path));
-                branchPathCalc(point, path);
+            for (Direction direction : Direction.values()){
+                if (direction != Direction.NONE){
+                    int newX = current.x() - direction.deltaX;
+                    int newY = current.y() - direction.deltaY;
+                    coordinate newPosition = new coordinate(newX, newY);
+                    if (_paths.containsKey(newPosition)){
+                        if (_paths.get(newPosition).getLength() > currentLength){
+                            _paths.get(newPosition).updatePath(new path(direction, currentLength + 1));
+                            if (!queue.contains(newPosition)){
+                                queue.add(newPosition);
+                            }
+                        }
+                    } else if (validTileChecker(newX, newY)){
+                        _paths.put(newPosition, new path(direction, currentLength + 1));
+                        if (!queue.contains(newPosition)){
+                            queue.add(newPosition);
+                        }
+                    }
+                }
             }
         }
     }
 
-    /**
-     * A Helper Method for calcFromThisPoint. It calculates branching off the main path
-     * @param point The Point, from which one moves to the last
-     * @param path The current Path
-     */
-    private void branchPathCalc(pathCoordinate point, ArrayList<Direction> path){
-        if(path.isEmpty()){return;}
-        switch (path.get(path.size()-1)) {
-            //if the last Direction was Vertical you branch Left and Right.
-            case UP, DOWN -> {
-                ArrayList<Direction> newPathLeft = new ArrayList<>(path);
-                newPathLeft.add(Direction.RIGHT);
-                calcFromThisPoint(new pathCoordinate(point.x() - 1, point.y()), newPathLeft);
+    private void recalculatePathsExtended(){
+        Queue<coordinate> queue = new LinkedList<>();
+        Set<coordinate> visited = new HashSet<>();
+        coordinate playerPosition = new coordinate(_playerX, _playerY);
+        _paths.get(playerPosition).updatePath(new path(Direction.NONE, 1));
+        queue.add(playerPosition);
+        visited.add(playerPosition);
+        while (!queue.isEmpty()){
+            coordinate current = queue.poll();
+            int currentLength = _paths.get(current).getLength();
 
-                ArrayList<Direction> newPathRight = new ArrayList<>(path);
-                newPathRight.add(Direction.LEFT);
-                calcFromThisPoint(new pathCoordinate(point.x() + 1, point.y()), newPathRight);
-            }
-            // if the last Direction was Horizontal you branch Up and Down.
-            case LEFT, RIGHT -> {
-                ArrayList<Direction> newPathUp = new ArrayList<>(path);
-                newPathUp.add(Direction.DOWN);
-                calcFromThisPoint(new pathCoordinate(point.x(), point.y() - 1), newPathUp);
-
-                ArrayList<Direction> newPathDown = new ArrayList<>(path);
-                newPathDown.add(Direction.UP);
-                calcFromThisPoint(new pathCoordinate(point.x(), point.y() + 1), newPathDown);
+            for (Direction direction : Direction.values()) {
+                if (direction != Direction.NONE){
+                    int newX = current.x() - direction.deltaX;
+                    int newY = current.y() - direction.deltaY;
+                    coordinate neighbor = new coordinate(newX, newY);
+                    //check if already visited
+                    if (!visited.contains(neighbor) && (_paths.containsKey(neighbor))){
+                        _paths.get(neighbor).updatePath(new path(direction, currentLength + 1));
+                        queue.add(neighbor);
+                        visited.add(neighbor);
+                    }
+                }
             }
         }
-        ArrayList<Direction> pathContinue = new ArrayList<>(path);
-        pathContinue.add(path.get(path.size()-1));
-        calcFromThisPoint(new pathCoordinate(point.x() - path.get(path.size()-1).deltaX, point.y() - path.get(path.size()-1).deltaY), pathContinue);
     }
+    /**
+     * Helper method to recalculate the pathing. It's a simplified version of the algorithm that simply updates the nearest 4 squares.
+     * Use instead of extended version if game very slow and the pathing algorithm might be the cause.
+     */
+    private void recalculatePathsLight(){
+        coordinate playerPosition = new coordinate(_playerX, _playerY);
+        _paths.get(playerPosition).updatePath(new path(Direction.NONE, 1));
+        for (Direction direction : Direction.values()){
+            if (direction != Direction.NONE){
+                int newX = playerPosition.x() - direction.deltaX;
+                int newY = playerPosition.y() - direction.deltaY;
+                coordinate newPosition = new coordinate(newX, newY);
+                if (_paths.containsKey(newPosition)){
+                    _paths.get(newPosition).updatePath(new path(direction, 2));
+                }
+            }
+        }
+    }
+    /**
+     * Get the Coordinates and Directions for the shortest path from the player to the end square.
+     * It already handles the inversion of the other pathing algorithms, so that every square has the correct Direction.
+      * @return A Map, where the key is a pathCoordinate and the item is a Direction.
+     */
+    public Map<coordinate, Direction> getPathToEnd(){
+        Map<coordinate, Direction> pathToEnd = new HashMap<>();
+        coordinate prevPos = new coordinate(_endX, _endY);
+        coordinate currentPos = new coordinate(_endX + _paths.get(prevPos).getDirection().deltaX, _endY + _paths.get(prevPos).getDirection().deltaY);
+        Direction currentDirection;
+        while (currentPos.x() != _playerX || currentPos.y() != _playerY){
+
+            pathToEnd.put(currentPos, Direction.getOppositeDirection(_paths.get(prevPos).getDirection()));
+            prevPos = currentPos;
+            currentPos = new coordinate(
+                    prevPos.x() + _paths.get(prevPos).getDirection().deltaX,
+                    prevPos.y() + _paths.get(prevPos).getDirection().deltaY);
+        }
+        return pathToEnd;
+    }
+
+    /////////////////////// SLASH /////////////////////////////////
 
     /**
      * Resets the slash
@@ -501,6 +574,18 @@ public class World {
             }
             updateViews();
             moveEnemies();
+        }
+    }
+
+    ////////////////////////// INTERACTABLE ///////////////////////////
+
+    /**
+     * Tries to interact with an object in front of the player.
+     */
+    public void doInteraction(){
+        coordinate c = new coordinate(_playerX + _playerDirection.deltaX, _playerY + _playerDirection.deltaY);
+        if (_interactables.containsKey(c)){
+            _interactables.get(c).interact();
         }
     }
 }

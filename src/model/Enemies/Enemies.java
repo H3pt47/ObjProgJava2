@@ -1,6 +1,6 @@
 package model.Enemies;
 
-import model.Direction;
+import values.Direction;
 import model.World;
 
 public interface Enemies {

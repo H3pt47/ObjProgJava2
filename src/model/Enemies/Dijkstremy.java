@@ -1,12 +1,11 @@
 package model.Enemies;
 
 import controller.Labyrinth;
-import model.Direction;
+import values.Direction;
 import model.World;
 import values.path;
-import values.pathCoordinate;
+import values.coordinate;
 
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -56,12 +55,12 @@ public class Dijkstremy implements Enemies{
     @Override
     public void update(World world){
         if(_activated && !_dead){
-            if(world.getPaths().containsKey(new pathCoordinate(_X, _Y))){
-                path path = world.getPaths().get(new pathCoordinate(_X, _Y));
+            if(world.getPaths().containsKey(new coordinate(_X, _Y))){
+                path path = world.getPaths().get(new coordinate(_X, _Y));
                 // checks for valid field
-                if (!world.enemyChecker(_X + path.getPath().get(path.getLength()-1).deltaX, _Y + path.getPath().get(path.getLength()-1).deltaY)){
-                    _X += path.getPath().get(path.getLength()-1).deltaX;
-                    _Y += path.getPath().get(path.getLength()-1).deltaY;
+                if (!world.enemyChecker(_X + path.getDirection().deltaX, _Y + path.getDirection().deltaY)){
+                    _X += path.getDirection().deltaX;
+                    _Y += path.getDirection().deltaY;
                 }
                 overHeating();
             }

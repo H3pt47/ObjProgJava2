@@ -1,9 +1,12 @@
-package model;
+package model.level;
 
 import model.Enemies.Enemies;
+import model.Interactable.Interactable;
+import values.Wall;
+import values.coordinate;
 
-import java.awt.*;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Each instance of this class represents a level, that is loaded into the world, for the player to enjoy.
@@ -20,6 +23,8 @@ public class Level {
     private final int _endY;
     private final ArrayList<Enemies> _enemies;
 
+    private final Map<coordinate, Interactable> _interactables;
+
     /**
      * Make a level. Yeah! It's just that easy..... Maybe not.
      * @param lenX the length of the game board in the X-axis
@@ -32,7 +37,7 @@ public class Level {
      * @param endY Y coordinate for the end point
      * @param enemies an ArrayList containing all the enemies
      */
-    public Level(int lenX, int lenY, String name, ArrayList<Wall> walls, int startX, int startY, int endX, int endY, ArrayList<Enemies> enemies) {
+    public Level(int lenX, int lenY, String name, ArrayList<Wall> walls, int startX, int startY, int endX, int endY, ArrayList<Enemies> enemies, Map<coordinate, Interactable> interactables) {
         _lenX = lenX;
         _lenY = lenY;
         _name = name;
@@ -42,6 +47,7 @@ public class Level {
         _endX = endX;
         _endY = endY;
         _enemies = enemies;
+        _interactables = interactables;
     }
 
     ///////////////////Getter and Setter /////////////////////////////////////
@@ -72,6 +78,9 @@ public class Level {
     }
     public ArrayList<Enemies> getEnemies() {
         return _enemies;
+    }
+    public Map<coordinate, Interactable> get_interactables() {
+        return _interactables;
     }
 
 }

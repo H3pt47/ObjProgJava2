@@ -1,12 +1,14 @@
-package model;
+package model.level;
 
 import controller.Labyrinth;
 import model.Enemies.Dijkstremy;
 import model.Enemies.Enemies;
+import model.Interactable.Interactable;
+import model.Interactable.Treasure;
+import values.Wall;
+import values.coordinate;
 
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 
 /**
@@ -33,6 +35,9 @@ public class LevelGenerator {
     /** Arraylist that store the enemies of the level.*/
     private ArrayList<Enemies> _enemies;
 
+    private Map<coordinate, Interactable> _interactables;
+    private boolean _didSpawnMap;
+
     /**
      * Generates a new Level with a certain width and height.
      * @param width width of the level.
@@ -47,6 +52,9 @@ public class LevelGenerator {
         this._numberOfHalls = (width * height) / (54);
         _hallCoolDown = 4;
         _spawnChance = 4 - Labyrinth.getDifficulty() * 2;
+        _didSpawnMap = false;
+        _interactables = new HashMap<>();
+
         initializeGrid();
     }
 
@@ -69,6 +77,8 @@ public class LevelGenerator {
         grid = new Cell[width][height];
         walls = new ArrayList<>();
         _enemies = new ArrayList<>();
+        _interactables.clear();
+        _didSpawnMap = false;
         recalculatesHalls();
         recalculatesSpawnChance();
         initializeGrid();
@@ -182,7 +192,6 @@ public class LevelGenerator {
                 && width > ((current.x + next.x) / 2) + 4
                 && 0 < ((current.y + next.y) / 2) - 4
                 && height > ((current.y + next.y) / 2) + 4)
-                //&& !(random.nextInt(0, (width * height) / (54 * _numberOfHalls + 1)) == 0)
         ){return false;}
         //checks if the pair of tiles is horizontal or vertical and checks for borderPositions
         // and if a 3x3 Room can be created.
@@ -200,7 +209,7 @@ public class LevelGenerator {
             grid[(current.x + next.x) / 2][current.y - 1].isWall = false;
             grid[(current.x + next.x) / 2][current.y - 2].isWall = false;
 
-            spawnEnemy((current.x + next.x) / 2, (current.y - 1));
+            doHallSpawning((current.x + next.x) / 2, (current.y - 1));
             return true;
         }
         else if(current.y == next.y
@@ -218,7 +227,7 @@ public class LevelGenerator {
             grid[(current.x + next.x) / 2][current.y + 1].isWall = false;
             grid[(current.x + next.x) / 2][current.y + 2].isWall = false;
 
-            spawnEnemy((current.x + next.x) / 2, (current.y + 1));
+            doHallSpawning((current.x + next.x) / 2, (current.y + 1));
             return true;
         }
         else if(current.x == next.x
@@ -235,7 +244,7 @@ public class LevelGenerator {
             grid[current.x - 1][(current.y + next.y) / 2].isWall = false;
             grid[current.x - 2][(current.y + next.y) / 2].isWall = false;
 
-            spawnEnemy(current.x - 1, (current.y + next.y) / 2);
+            doHallSpawning(current.x - 1, (current.y + next.y) / 2);
 
             return true;
         }
@@ -253,7 +262,7 @@ public class LevelGenerator {
             grid[current.x + 1][(current.y + next.y) / 2].isWall = false;
             grid[current.x + 2][(current.y + next.y) / 2].isWall = false;
 
-            spawnEnemy(current.x + 1, (current.y + next.y) / 2);
+            doHallSpawning(current.x + 1, (current.y + next.y) / 2);
              return true;
         }
         return false;
@@ -268,14 +277,17 @@ public class LevelGenerator {
     }
 
     /**
-     * Creates a new Dijkstremy at the given Coordinates.
+     * Creates something at the given Coordinates.
      * @param x The X coordinate.
      * @param y The Y coordinate.
      */
-    private void spawnEnemy(int x, int y){
+    private void doHallSpawning(int x, int y){
 
         if (random.nextInt(0, _spawnChance) == 0){
             _enemies.add(new Dijkstremy(x, y, true, false));
+        } else if(!_didSpawnMap){
+            _interactables.put(new coordinate(x,y), new Treasure("Hello"));
+            _didSpawnMap = true;
         }
     }
 
@@ -301,6 +313,9 @@ public class LevelGenerator {
     }
     public ArrayList<Enemies> get_enemies(){
         return _enemies;
+    }
+    public Map<coordinate, Interactable> get_interactables(){
+        return _interactables;
     }
 
 

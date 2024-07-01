@@ -1,10 +1,9 @@
 package view;
 
 import model.Enemies.Enemies;
-import model.Wall;
+import values.Wall;
 import model.World;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -65,6 +64,7 @@ public class ConsoleView implements View {
      * @return If an enemy is at a given x-and y coordinate.
      */
     private Boolean isEnemy(List<Enemies> enemies, int x, int y){
+
         for (Enemies e : enemies) {
             if (e.getX() == x && e.getY() == y){
                 return true;
