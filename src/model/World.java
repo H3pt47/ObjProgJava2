@@ -1,5 +1,7 @@
 package model;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -368,6 +370,10 @@ public class World {
         return noWallChecker(x,y) && boundsChecker(x,y) && noInteractableChecker(x,y);
     }
 
+    public boolean allEnemiesDead(){
+        return _enemies.stream().allMatch(Enemies::isDead);
+    }
+
     ////////////////// LOADING AND RELOADING //////////////////////
 
     /**
@@ -555,6 +561,7 @@ public class World {
                     prevPos.x() + _paths.get(prevPos).getDirection().deltaX,
                     prevPos.y() + _paths.get(prevPos).getDirection().deltaY);
         }
+        pathToEnd.put(currentPos, Direction.getOppositeDirection(_paths.get(prevPos).getDirection()));
         return pathToEnd;
     }
 
@@ -609,5 +616,39 @@ public class World {
         this.doSlashCooldown();
         this.moveEnemies();
         this.updateViews();
+    }
+
+    ////////////////////// AUTOSOLVE ////////////////////////////
+
+    public void autoSolve(){
+        if(allEnemiesDead() && _canSeePath){
+            _userInputEnabled = false;
+            int delay = 50;
+            Timer t = new Timer();
+            TimerTask task = new TimerTask() {
+                public void run() {
+                    if (getPathToEnd().size() < 2){
+                        t.cancel();
+                    }
+                    doAutoStep();
+                }
+            };
+            t.scheduleAtFixedRate(task, 0, delay);
+            _userInputEnabled = true;
+        }
+    }
+
+    private void doAutoStep(){
+        this.movePlayerAuto(getPathToEnd().get(new coordinate(_playerX, _playerY)));
+    }
+
+    private void movePlayerAuto(Direction direction){
+        _didPlayerMove = true;
+        doSlashCooldown();
+        _playerDirection = direction;
+        setPlayerX(getPlayerX() + direction.deltaX);
+        setPlayerY(getPlayerY() + direction.deltaY);
+        calcPaths();
+        updateViews();
     }
 }

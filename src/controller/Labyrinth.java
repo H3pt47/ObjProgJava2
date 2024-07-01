@@ -1,6 +1,7 @@
 package controller;
 
 import java.awt.Dimension;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
@@ -160,6 +161,7 @@ public class Labyrinth {
         _mazeKeys.add(new keyPresses("e", KeyEvent.VK_E, () -> world.doInteraction(), 0));
         _mazeKeys.add(new keyPresses("r", KeyEvent.VK_R, () -> world.levelReset(), 0));
         _mazeKeys.add(new keyPresses("q", KeyEvent.VK_Q, Labyrinth::loadNewLevel, 0));
+        _mazeKeys.add(new keyPresses("STRG + S", KeyEvent.VK_S, () -> world.autoSolve(), InputEvent.CTRL_DOWN_MASK));
     }
 
     /**
@@ -175,11 +177,11 @@ public class Labyrinth {
      */
     private static void paramSetup() {
         TITEL = "The lazy Labyrinth";
-        SCALE_X = 15;
-        SCALE_Y = 15;
-        SIZE_X = 75;
-        SIZE_Y = 55;
-        DIFFICULTY = 2;
+        SCALE_X = 25;
+        SCALE_Y = 25;
+        SIZE_X = 35;
+        SIZE_Y = 25;
+        DIFFICULTY = 0;
         BORDERLESS = true;
         LANGUAGE = "english";
         _generator = new LevelGenerator(SIZE_X,SIZE_Y);
