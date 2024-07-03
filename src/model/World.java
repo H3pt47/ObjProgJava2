@@ -1,7 +1,5 @@
 package model;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -89,7 +87,7 @@ public class World {
 
         this._enemies = new CopyOnWriteArrayList<>(level.getEnemies());
 
-        this._interactables = level.get_interactables();
+        this._interactables = level.get_interactable();
 
         this._canSeePath = false;
 
@@ -396,7 +394,7 @@ public class World {
         this._playerDirection = Direction.NONE;
         this._didPlayerMove = false;
 
-        this._interactables = level.get_interactables();
+        this._interactables = level.get_interactable();
         this._canSeePath = false;
 
         _paths.clear();
@@ -638,10 +636,18 @@ public class World {
         }
     }
 
+    /**
+     * A helper method for the AutoSolver
+     * It schedules this task, until level is cleared.
+     */
     private void doAutoStep(){
         this.movePlayerAuto(getPathToEnd().get(new coordinate(_playerX, _playerY)));
     }
 
+    /**
+     * A Helper Method for the AutoSolver
+     * @param direction The Direction For The player to move to.
+     */
     private void movePlayerAuto(Direction direction){
         _didPlayerMove = true;
         doSlashCooldown();

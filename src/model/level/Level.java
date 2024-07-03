@@ -23,7 +23,7 @@ public class Level {
     private final int _endY;
     private final ArrayList<Enemies> _enemies;
 
-    private final Map<coordinate, Interactable> _interactables;
+    private final Map<coordinate, Interactable> _interactable;
 
     /**
      * Make a level. Yeah! It's just that easy..... Maybe not.
@@ -36,8 +36,9 @@ public class Level {
      * @param endX X coordinate for the end point
      * @param endY Y coordinate for the end point
      * @param enemies an ArrayList containing all the enemies
+     * @param interactable a Map with all the Interactable Objects and their coordinates as keys.
      */
-    public Level(int lenX, int lenY, String name, ArrayList<Wall> walls, int startX, int startY, int endX, int endY, ArrayList<Enemies> enemies, Map<coordinate, Interactable> interactables) {
+    public Level(int lenX, int lenY, String name, ArrayList<Wall> walls, int startX, int startY, int endX, int endY, ArrayList<Enemies> enemies, Map<coordinate, Interactable> interactable) {
         _lenX = lenX;
         _lenY = lenY;
         _name = name;
@@ -47,7 +48,7 @@ public class Level {
         _endX = endX;
         _endY = endY;
         _enemies = enemies;
-        _interactables = interactables;
+        _interactable = interactable;
     }
 
     ///////////////////Getter and Setter /////////////////////////////////////
@@ -79,8 +80,8 @@ public class Level {
     public ArrayList<Enemies> getEnemies() {
         return _enemies;
     }
-    public Map<coordinate, Interactable> get_interactables() {
-        return _interactables;
+    public Map<coordinate, Interactable> get_interactable() {
+        return _interactable;
     }
 
 }
