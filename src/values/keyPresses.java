@@ -4,8 +4,10 @@ public class keyPresses{
 
     private final String _key;
     private Integer _value;
-    private final Runnable _command;
+    private final Runnable _command1;
+    private final Runnable _command2;
     private int _modifier;
+    private boolean _seperatePresses;
 
     /**
      * This method is to make mapping key presses to functions easier.
@@ -19,8 +21,28 @@ public class keyPresses{
     public keyPresses(String key, Integer value, Runnable command, int modifier){
         _key = key;
         _value = value;
-        _command = command;
+        _command1 = command;
+        _command2 = null;
         _modifier = modifier;
+        _seperatePresses = false;
+    }
+
+    /**
+     * The Alternate Constructor for a keyPress, when you want to call different methods for pressing and releasing the button.
+     * @param key The name of the functionality of the key in the program.
+     * @param value The KeyEvent Int Value. e.g keyEvent.VK_UP
+     * @param command1 The method that gets called when pressing the button
+     * @param command2 The method that gets called when releasing the button
+     * @param modifier The modifier to the Key Event int. e.g. if SHIFT or CTRL is pressed.
+     *                 It has to be either 0 for no additional Key or InputEvent.SHIFT_MASK, InputEvent.CTRL_MASK etc.
+     */
+    public keyPresses(String key, Integer value, Runnable command1, Runnable command2, int modifier){
+        _key = key;
+        _value = value;
+        _command1 = command1;
+        _command2 = command2;
+        _modifier = modifier;
+        _seperatePresses = true;
     }
 
     public String getKey(){
@@ -31,8 +53,12 @@ public class keyPresses{
         return _value;
     }
 
-    public Runnable getCommand(){
-        return _command;
+    public Runnable getCommand1(){
+        return _command1;
+    }
+
+    public Runnable getCommand2(){
+        return _command2;
     }
 
     public int getModifier(){
@@ -45,5 +71,9 @@ public class keyPresses{
 
     public void setModifier(int modifier){
         _modifier = modifier;
+    }
+
+    public boolean seperatePresses(){
+        return _seperatePresses;
     }
 }

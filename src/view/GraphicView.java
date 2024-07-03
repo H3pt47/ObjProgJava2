@@ -302,6 +302,9 @@ public class GraphicView extends JPanel implements view.View {
         for(coordinate p: _world.getPathToEnd().keySet()){
             drawPlayerTracking(g, p.x() * fieldDimension.width + _offSetX + (fieldDimension.width / 4), p.y() * fieldDimension.height + _offSetY + (fieldDimension.height / 4),
                     fieldDimension.width / 2, fieldDimension.height / 2, _world.getPathToEnd().get(p));
+            if (_world.getPathToEnd().get(p) == null){
+                System.out.println(p);
+            }
         }
     }
 

@@ -14,6 +14,8 @@ import javax.swing.*;
 
 import GameWindow.*;
 import model.World;
+import values.Direction;
+import values.keyPressManager;
 import values.keyPresses;
 import view.GraphicView;
 import view.View;
@@ -44,6 +46,8 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
     private ActionMap _actionMapGame;
     private InputMap _inputMapMenu;
     private ActionMap _actionMapMenu;
+
+    private Timer _clock;
     /**
      * Creates a new instance.
      *
@@ -77,6 +81,10 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
 
         graphicView.setCursor(transparentCursor);
 
+        //Timer management
+        //TODO setup new constructor
+        _clock = new Timer(Labyrinth.DELAY_MS, e -> doTick());
+
         // Listen for key events
         addKeyListener(this);
         // Listen for mouse events.
@@ -93,12 +101,10 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
 
     @Override
     public void keyPressed(KeyEvent e) {
-        //Now done with Input and Action Map due to complications with focused window.
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        // TODO Auto-generated method stub
     }
 
     /////////////////// Action Events ////////////////////////////////
@@ -177,6 +183,7 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
      */
     public void showMainMenu(){
         cards.show(mainContainer, "MENU");
+        _clock.stop();
     }
 
     /**
@@ -184,6 +191,7 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
      */
     public void showGame(){
         cards.show(mainContainer, "GAME");
+        _clock.start();
     }
 
     /**
@@ -209,6 +217,8 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
         Labyrinth.reset();
     }
 
+    ///////////////////////////// INPUT //////////////////////////////////////
+
     /**
      * This method takes the ArrayList of keyPresses given in the constructor and applies these
      * Values to the input and action map of the graphic view.
@@ -216,26 +226,45 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
     private void setupInputActionMap() {
         _inputMapGame = graphicView.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         _actionMapGame = graphicView.getActionMap();
-        _mazeKeys.forEach((key) -> {
-            _inputMapGame.put(KeyStroke.getKeyStroke(key.getValue(), key.getModifier()), key.getKey());
-            _actionMapGame.put(key.getKey(), new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    key.getCommand().run();
-                }
-            });
-        });
+        setupInputActionMapHELPER(_inputMapGame, _actionMapGame, _mazeKeys);
 
         _inputMapMenu = mainMenu.getMenuPanel().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         _actionMapMenu = mainMenu.getMenuPanel().getActionMap();
-        _menuKeys.forEach((key) -> {
-            _inputMapMenu.put(KeyStroke.getKeyStroke(key.getValue(), key.getModifier()), key.getKey());
-            _actionMapMenu.put(key.getKey(), new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    key.getCommand().run();
-                }
-            });
+        setupInputActionMapHELPER(_inputMapMenu, _actionMapMenu, _menuKeys);
+    }
+
+    private void setupInputActionMapHELPER(InputMap i, ActionMap a, ArrayList<keyPresses> k){
+        k.forEach((key) -> {
+            if(key.seperatePresses()){
+                i.put(KeyStroke.getKeyStroke(key.getValue(), key.getModifier(), false), key.getKey() + "_p");
+                a.put(key.getKey() + "_p", new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        key.getCommand1().run();
+                    }
+                });
+                i.put(KeyStroke.getKeyStroke(key.getValue(), key.getModifier(), true), key.getKey() + "_r");
+                a.put(key.getKey() + "_r", new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        key.getCommand2().run();
+                    }
+                });
+            } else{
+                i.put(KeyStroke.getKeyStroke(key.getValue(), key.getModifier(), false), key.getKey());
+                a.put(key.getKey(), new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        key.getCommand1().run();
+                    }
+                });
+            }
         });
+    }
+
+    ////////////////////////// CLOCK ///////////////////////////////
+
+    public void doTick() {
+        world.doTick();
     }
 }

@@ -7,10 +7,7 @@ import controller.Labyrinth;
 import model.Enemies.Enemies;
 import model.Interactable.Interactable;
 import model.level.Level;
-import values.Direction;
-import values.Wall;
-import values.path;
-import values.coordinate;
+import values.*;
 import view.View;
 
 /**
@@ -48,11 +45,13 @@ public class World {
     private Map<coordinate, Interactable> _interactables;
     /** If you can see the path to the end */
     private boolean _canSeePath;
+
+
     /** Boolean that allows user input*/
     private Boolean _userInputEnabled;
 
-    //timing management currently not in use :(
-    private static final int DELAY = 100;
+    private keyPressManager _keyPressManager;
+    private String _lastActiveInput;
 
     /** Map with the Directions to the Player*/
     private Map<coordinate, path> _paths;
@@ -88,6 +87,8 @@ public class World {
         this._enemies = new CopyOnWriteArrayList<>(level.getEnemies());
 
         this._interactables = level.get_interactable();
+
+        this._keyPressManager = new keyPressManager();
 
         this._canSeePath = false;
 
@@ -246,30 +247,15 @@ public class World {
      * @param direction where to move.
      */
     public void movePlayer(Direction direction) {
-        if (_userInputEnabled){
-            _userInputEnabled = false;
 
-            doSlashCooldown();
+        coordinate tempPosition = new coordinate(_playerX, _playerY);
 
-            coordinate tempPosition = new coordinate(_playerX, _playerY);
+        _playerDirection = direction;
 
-            // The direction tells us exactly how much we need to move along
-            // every direction
-            _playerDirection = direction;
-            setPlayerX(getPlayerX() + direction.deltaX);
-            setPlayerY(getPlayerY() + direction.deltaY);
-            if(enemyChecker(_playerX, _playerY)){
-                levelReset();
-            } else{
-                _didPlayerMove = !tempPosition.equals(new coordinate(_playerX, _playerY));
-                calcPaths();
-                moveEnemies();
-                updateViews();
-            }
+        setPlayerX(getPlayerX() + direction.deltaX);
+        setPlayerY(getPlayerY() + direction.deltaY);
 
-            _userInputEnabled = true;
-        }
-
+        _didPlayerMove = !tempPosition.equals(new coordinate(_playerX, _playerY));
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -432,7 +418,7 @@ public class World {
     /**
      *  Moves the enemies.
      */
-    private void moveEnemies() {
+    public void moveEnemies() {
         Iterator<Enemies> it = _enemies.iterator();
         while (it.hasNext()) {
             Enemies e = it.next();
@@ -656,5 +642,59 @@ public class World {
         setPlayerY(getPlayerY() + direction.deltaY);
         calcPaths();
         updateViews();
+    }
+
+    ////////////////////////////////// INPUT HANDLING ///////////////////////////////
+
+    public void keyPressed(String key){
+        _keyPressManager.pushKey(key);
+    }
+
+    public void keyReleased(String key){
+        _keyPressManager.unPushKey(key);
+    }
+
+    public String getMostRecentActiveInput(){
+        return _keyPressManager.peekKey();
+    }
+
+    /////////////////////////// CLOCK //////////////////////////
+
+    public void doTick(){
+        doSlashCooldown();
+
+        _lastActiveInput = getMostRecentActiveInput();
+        if (_lastActiveInput != null && _userInputEnabled){
+
+            switch(_lastActiveInput){
+                case "UP":
+                    movePlayer(Direction.UP);
+                    break;
+                case "DOWN":
+                    movePlayer(Direction.DOWN);
+                    break;
+                case "LEFT":
+                    movePlayer(Direction.LEFT);
+                    break;
+                case "RIGHT":
+                    movePlayer(Direction.RIGHT);
+                    break;
+                case "SLASH":
+                    doSlash();
+                    break;
+                case "INTERACT":
+                    doInteraction();
+                    break;
+                default:
+                    break;
+            }
+        }
+        if(enemyChecker(_playerX, _playerY)){
+            levelReset();
+        } else{
+            calcPaths();
+            moveEnemies();
+            updateViews();
+        }
     }
 }

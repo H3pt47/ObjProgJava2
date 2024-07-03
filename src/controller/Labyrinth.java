@@ -38,6 +38,8 @@ public class Labyrinth {
     private static int SIZE_X;
     /** Y-coordinate sice of the world.*/
     private static int SIZE_Y;
+    public static int DELAY_MS = 50;
+    public static int SLASH_DELAY = 1;
     /** Main menu of the world */
     private static MainMenu mainMenu;
     /** The WORLD. */
@@ -48,7 +50,7 @@ public class Labyrinth {
     private static GraphicView gview;
     /** Console view of the world.*/
     private static ConsoleView cview;
-    /** Controller of the world to controll the player.*/
+    /** Controller of the world to control the player.*/
     private static Controller controller;
     /** The Level generator that generates us a new level.*/
     private static LevelGenerator _generator;
@@ -56,9 +58,10 @@ public class Labyrinth {
     private static ArrayList<keyPresses> _mazeKeys;
     /** Arraylist that store the keys that can be used in the menu.*/
     private static ArrayList<keyPresses> _menuKeys;
+
     /**
      * Main method that connects everything and runs the game.
-     * @param args
+     * @param args The system arguments.
      */
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -152,13 +155,20 @@ public class Labyrinth {
      */
     private static void registerMazeKeys() {
         _mazeKeys = new ArrayList<>();
-        _mazeKeys.add(new keyPresses("UP", KeyEvent.VK_UP, () -> world.movePlayer(Direction.UP), 0));
-        _mazeKeys.add(new keyPresses("DOWN", KeyEvent.VK_DOWN, () -> world.movePlayer(Direction.DOWN), 0));
-        _mazeKeys.add(new keyPresses("LEFT", KeyEvent.VK_LEFT, () -> world.movePlayer(Direction.LEFT), 0));
-        _mazeKeys.add(new keyPresses("RIGHT", KeyEvent.VK_RIGHT, () -> world.movePlayer(Direction.RIGHT), 0));
-        _mazeKeys.add(new keyPresses("SLASH", KeyEvent.VK_ENTER, () -> world.doSlash(), 0));
+        _mazeKeys.add(new keyPresses("UP", KeyEvent.VK_UP, () -> world.keyPressed("UP"), () -> world.keyReleased("UP"), 0));
+
+        _mazeKeys.add(new keyPresses("DOWN", KeyEvent.VK_DOWN, () -> world.keyPressed("DOWN"), () -> world.keyReleased("DOWN"), 0));
+
+        _mazeKeys.add(new keyPresses("LEFT", KeyEvent.VK_LEFT, () -> world.keyPressed("LEFT"), () -> world.keyReleased("LEFT"), 0));
+
+        _mazeKeys.add(new keyPresses("RIGHT", KeyEvent.VK_RIGHT, () -> world.keyPressed("RIGHT"), () -> world.keyReleased("RIGHT"), 0));
+
+        _mazeKeys.add(new keyPresses("SLASH", KeyEvent.VK_SPACE, () -> world.keyPressed("SLASH"), () -> world.keyReleased("SLASH"), 0));
+
+        _mazeKeys.add(new keyPresses("INTERACT", KeyEvent.VK_E, () -> world.keyPressed("INTERACT"), () -> world.keyReleased("INTERACT"), 0));
+
         _mazeKeys.add(new keyPresses("ESC", KeyEvent.VK_ESCAPE, () -> controller.showMainMenu(), 0));
-        _mazeKeys.add(new keyPresses("e", KeyEvent.VK_E, () -> world.doInteraction(), 0));
+
         _mazeKeys.add(new keyPresses("r", KeyEvent.VK_R, () -> world.levelReset(), 0));
         _mazeKeys.add(new keyPresses("q", KeyEvent.VK_Q, Labyrinth::loadNewLevel, 0));
         _mazeKeys.add(new keyPresses("STRG + S", KeyEvent.VK_S, () -> world.autoSolve(), InputEvent.CTRL_DOWN_MASK));
@@ -192,7 +202,17 @@ public class Labyrinth {
      */
     public static void loadNewLevel(){
         _generator.generateMaze();
-        world.newLevel(new Level(SIZE_X, SIZE_Y, "GENERATED", _generator.getWalls(), _generator.getPlayerX(), _generator.getPlayerY(), _generator.getEndX(), _generator.getEndY(), _generator.get_enemies(), _generator.get_interactables()));
+        world.newLevel(new Level(
+                SIZE_X,
+                SIZE_Y,
+                "GENERATED",
+                _generator.getWalls(),
+                _generator.getPlayerX(),
+                _generator.getPlayerY(),
+                _generator.getEndX(),
+                _generator.getEndY(),
+                _generator.get_enemies(),
+                _generator.get_interactables()));
     }
 
     /////////////////// GETTER AND SETTER METHODS ////////////////////////////////
