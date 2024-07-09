@@ -62,12 +62,14 @@ public class Dijkstremy implements Enemies{
                     _X += path.getDirection().deltaX;
                     _Y += path.getDirection().deltaY;
                 }
-                overHeating();
+                //If the Enemy kills the Player (Moved onto the field of the player)
+                if(_X == world.getPlayerX() && _Y == world.getPlayerY()){
+                    world.playerDies();
+                } else{
+                    overHeating();
+                }
             }
-            //If the Enemy kills the Player (Moved onto the field of the player)
-            if(_X == world.getPlayerX() && _Y == world.getPlayerY()){
-                world.levelReset();
-            }
+
         }
         else if(!_activated && !_dead){
             _coolDown--;

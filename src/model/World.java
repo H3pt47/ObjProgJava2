@@ -46,9 +46,13 @@ public class World {
     /** If you can see the path to the end */
     private boolean _canSeePath;
 
+    private boolean _playerDead;
+    private int _userDeathAnimationTimer = -1;
 
     /** Boolean that allows user input*/
     private Boolean _userInputEnabled;
+
+    private boolean _isClockRunning = false;
 
     private keyPressManager _keyPressManager;
     private String _lastActiveInput;
@@ -67,9 +71,6 @@ public class World {
      * Creates a new world with the given level.
      */
     public World(Level level) {
-        // Normally, we would check the arguments for proper values
-        // Well...but you guys didn't and I am lazy, so we will see if i do that when i clean up around here...
-        //TODO valueCheck N+ etc
         this.width = level.getLenX();
         this.height = level.getLenY();
         this._walls = level.getWalls();
@@ -91,6 +92,7 @@ public class World {
         this._keyPressManager = new keyPressManager();
 
         this._canSeePath = false;
+        this._playerDead = false;
 
         this._paths = new HashMap<>();
         calcPaths();
@@ -238,6 +240,22 @@ public class World {
         _canSeePath = canSeePath;
     }
 
+    public void set_isClockRunning(boolean isClockRunning) {
+        _isClockRunning = isClockRunning;
+    }
+
+    public keyPressManager get_keyPressManager() {
+        return _keyPressManager;
+    }
+
+    public boolean isPlayerDead() {
+        return _playerDead;
+    }
+
+    public int get_userDeathAnimationTimer(){
+        return _userDeathAnimationTimer;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Player Management
 
@@ -258,8 +276,7 @@ public class World {
         _didPlayerMove = !tempPosition.equals(new coordinate(_playerX, _playerY));
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // View Management
+    /////////////////////////////////////////////////////////////////////////// View Management
 
     /**
      * Adds the given view of the world and updates it once. Once registered through
@@ -278,10 +295,6 @@ public class World {
     private void updateViews() {
         for (View view : views) {
             view.update(this);
-        }
-        //If end was reached
-        if (this._playerX == this._endX && this._playerY == this._endY) {
-            Labyrinth.loadNewLevel();
         }
     }
 
@@ -366,30 +379,13 @@ public class World {
      */
     public void newLevel(Level level){
         this._level = level;
-
-        this.width = level.getLenX();
-        this.height = level.getLenY();
-        this._walls = level.getWalls();
-
-        this._playerX = level.getStartX();
-        this._playerY = level.getStartY();
-        this._endX = level.getEndX();
-        this._endY = level.getEndY();
-        this._enemies = new CopyOnWriteArrayList<>(level.getEnemies());
-
-        this._playerDirection = Direction.NONE;
-        this._didPlayerMove = false;
-
-        this._interactables = level.get_interactable();
-        this._canSeePath = false;
-
-        _paths.clear();
-        calcPaths();
-        slashReset();
-        for (View view : views) {
-            view.newLevel(this);
+        _endX = _level.getEndX();
+        _endY = _level.getEndY();
+        _walls = _level.getWalls();
+        for (View v: views){
+            v.newLevel(this);
         }
-        updateViews();
+        levelReset();
     }
 
     /**
@@ -401,19 +397,27 @@ public class World {
         _playerX = _level.getStartX();
         _playerY = _level.getStartY();
         this._didPlayerMove = false;
+        _playerDead = false;
+        _userDeathAnimationTimer = -1;
         //Enemies
         this._enemies = new CopyOnWriteArrayList<>(_level.getEnemies());
         _enemies.forEach(Enemies::reset);
         //Pathing
         _paths.clear();
         calcPaths();
-
         this._canSeePath = false;
+
+        //KeyPresses
+        _keyPressManager.voidStack();
+
+        _userInputEnabled = true;
+
         //Slash
         slashReset();
 
         updateViews();
     }
+
     ///////////////////// ENEMIES ////////////////////////
     /**
      *  Moves the enemies.
@@ -510,24 +514,7 @@ public class World {
             }
         }
     }
-    /**
-     * Helper method to recalculate the pathing. It's a simplified version of the algorithm that simply updates the nearest 4 squares.
-     * Use instead of extended version if game very slow and the pathing algorithm might be the cause.
-     */
-    private void recalculatePathsLight(){
-        coordinate playerPosition = new coordinate(_playerX, _playerY);
-        _paths.get(playerPosition).updatePath(new path(Direction.NONE, 1));
-        for (Direction direction : Direction.values()){
-            if (direction != Direction.NONE){
-                int newX = playerPosition.x() - direction.deltaX;
-                int newY = playerPosition.y() - direction.deltaY;
-                coordinate newPosition = new coordinate(newX, newY);
-                if (_paths.containsKey(newPosition)){
-                    _paths.get(newPosition).updatePath(new path(direction, 2));
-                }
-            }
-        }
-    }
+
     /**
      * Get the Coordinates and Directions for the shortest path from the player to the end square.
      * It already handles the inversion of the other pathing algorithms, so that every square has the correct Direction.
@@ -535,15 +522,26 @@ public class World {
      */
     public Map<coordinate, Direction> getPathToEnd(){
         Map<coordinate, Direction> pathToEnd = new HashMap<>();
+        if (_playerX == _endX && _playerY == _endY){return pathToEnd;}
         coordinate prevPos = new coordinate(_endX, _endY);
         coordinate currentPos = new coordinate(_endX + _paths.get(prevPos).getDirection().deltaX, _endY + _paths.get(prevPos).getDirection().deltaY);
         while (currentPos.x() != _playerX || currentPos.y() != _playerY){
-
+            //DEBUGGING
+            if (_paths.get(prevPos) == null){
+                System.out.println(prevPos);
+                System.out.println(currentPos);
+                for (coordinate c : _paths.keySet()){
+                    System.out.println(c);
+                    System.out.print(_paths.get(c));
+                }
+                System.out.println(pathToEnd);
+            }
             pathToEnd.put(currentPos, Direction.getOppositeDirection(_paths.get(prevPos).getDirection()));
             prevPos = currentPos;
             currentPos = new coordinate(
                     prevPos.x() + _paths.get(prevPos).getDirection().deltaX,
                     prevPos.y() + _paths.get(prevPos).getDirection().deltaY);
+
         }
         pathToEnd.put(currentPos, Direction.getOppositeDirection(_paths.get(prevPos).getDirection()));
         return pathToEnd;
@@ -561,21 +559,18 @@ public class World {
     }
 
     /**
-     * Makes a slash around the Player, killing any Enemy standing in the 3x3 around him. It has a CoolDown of 6 Turns.
+     * Makes a slash around the Player, killing any Enemy standing nearby. Parameter specified in Labyrinth.java
      */
     public void doSlash(){
         if (slashCoolDown == 0){
             slashX = _playerX;
             slashY = _playerY;
-            slashCoolDown = 6;
+            slashCoolDown = Labyrinth.SLASH_DELAY;
             for (Enemies e : _enemies) {
-                if ((e.getX() == _playerX - 1 || e.getX() == _playerX || e.getX() == _playerX + 1)
-                        && (e.getY() == _playerY - 1 || e.getY() == _playerY || e.getY() == _playerY + 1)){
+                if (_paths.get(new coordinate(e.getX(), e.getY())).getLength() <= Labyrinth.SLASH_SIZE){
                     e.kill();
                 }
             }
-            updateViews();
-            moveEnemies();
         }
     }
 
@@ -590,16 +585,13 @@ public class World {
     ////////////////////////// INTERACTABLE ///////////////////////////
 
     /**
-     * Tries to interact with an object in front of the player.
+     * Tries to interact with an object in front of the player. Does nothing if there is no interactable object.
      */
     public void doInteraction(){
         coordinate c = new coordinate(_playerX + _playerDirection.deltaX, _playerY + _playerDirection.deltaY);
         if (_interactables.containsKey(c)){
             _interactables.get(c).interact(this);
         }
-        this.doSlashCooldown();
-        this.moveEnemies();
-        this.updateViews();
     }
 
     ////////////////////// AUTOSOLVE ////////////////////////////
@@ -607,18 +599,24 @@ public class World {
     public void autoSolve(){
         if(allEnemiesDead() && _canSeePath){
             _userInputEnabled = false;
+            _keyPressManager.voidStack();
             int delay = 50;
             Timer t = new Timer();
             TimerTask task = new TimerTask() {
                 public void run() {
-                    if (getPathToEnd().size() < 2){
+                    Map<coordinate, Direction> pathToEnd = getPathToEnd();
+                    if (pathToEnd.isEmpty() || !allEnemiesDead() || !_canSeePath){
                         t.cancel();
+                        _userInputEnabled = true;
+                    } else{
+                        if (_isClockRunning){
+                            doAutoStep(pathToEnd);
+                        }
                     }
-                    doAutoStep();
+
                 }
             };
             t.scheduleAtFixedRate(task, 0, delay);
-            _userInputEnabled = true;
         }
     }
 
@@ -626,8 +624,8 @@ public class World {
      * A helper method for the AutoSolver
      * It schedules this task, until level is cleared.
      */
-    private void doAutoStep(){
-        this.movePlayerAuto(getPathToEnd().get(new coordinate(_playerX, _playerY)));
+    private void doAutoStep(Map<coordinate, Direction> pathToEnd){
+        this.movePlayerAuto(pathToEnd.get(new coordinate(_playerX, _playerY)));
     }
 
     /**
@@ -642,6 +640,11 @@ public class World {
         setPlayerY(getPlayerY() + direction.deltaY);
         calcPaths();
         updateViews();
+
+        //If end was reached
+        if (this._playerX == this._endX && this._playerY == this._endY) {
+            Labyrinth.loadNewLevel();
+        }
     }
 
     ////////////////////////////////// INPUT HANDLING ///////////////////////////////
@@ -655,7 +658,7 @@ public class World {
     }
 
     public String getMostRecentActiveInput(){
-        return _keyPressManager.peekKey();
+        return _keyPressManager.getInput();
     }
 
     /////////////////////////// CLOCK //////////////////////////
@@ -663,38 +666,61 @@ public class World {
     public void doTick(){
         doSlashCooldown();
 
-        _lastActiveInput = getMostRecentActiveInput();
-        if (_lastActiveInput != null && _userInputEnabled){
+        if(_playerDead && _userDeathAnimationTimer >= 1){
+            updateViews();
+            _userDeathAnimationTimer--;
+        } else if(_playerDead && _userDeathAnimationTimer == 0){
+            updateViews();
+            _userDeathAnimationTimer--;
+            levelReset();
+            _userInputEnabled = true;
+        } else{
+            _lastActiveInput = getMostRecentActiveInput();
+            if (_lastActiveInput != null && _userInputEnabled){
 
-            switch(_lastActiveInput){
-                case "UP":
-                    movePlayer(Direction.UP);
-                    break;
-                case "DOWN":
-                    movePlayer(Direction.DOWN);
-                    break;
-                case "LEFT":
-                    movePlayer(Direction.LEFT);
-                    break;
-                case "RIGHT":
-                    movePlayer(Direction.RIGHT);
-                    break;
-                case "SLASH":
-                    doSlash();
-                    break;
-                case "INTERACT":
-                    doInteraction();
-                    break;
-                default:
-                    break;
+                switch(_lastActiveInput){
+                    case "UP":
+                        movePlayer(Direction.UP);
+                        break;
+                    case "DOWN":
+                        movePlayer(Direction.DOWN);
+                        break;
+                    case "LEFT":
+                        movePlayer(Direction.LEFT);
+                        break;
+                    case "RIGHT":
+                        movePlayer(Direction.RIGHT);
+                        break;
+                    case "SLASH":
+                        doSlash();
+                        break;
+                    case "INTERACT":
+                        doInteraction();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if(enemyChecker(_playerX, _playerY)){
+                playerDies();
+            } else{
+                calcPaths();
+                moveEnemies();
+                updateViews();
+            }
+
+            //If end was reached
+            if (this._playerX == this._endX && this._playerY == this._endY) {
+                Labyrinth.loadNewLevel();
             }
         }
-        if(enemyChecker(_playerX, _playerY)){
-            levelReset();
-        } else{
-            calcPaths();
-            moveEnemies();
-            updateViews();
-        }
+    }
+
+    //////////////// PLAYER DYING //////////////////
+
+    public void playerDies(){
+        _playerDead = true;
+        _userInputEnabled = false;
+        _userDeathAnimationTimer = 10;
     }
 }

@@ -1,5 +1,7 @@
 package GameWindow;
 
+import controller.Controller;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -14,13 +16,13 @@ public class areYouSureYouWantToExit {
     private JPanel panel;
     private JLabel titelText2;
 
-    public areYouSureYouWantToExit(JFrame rel_frame) {
-        JDialog frame = new JDialog(rel_frame);
+    public areYouSureYouWantToExit(Controller controller) {
+        JDialog frame = new JDialog(controller.get_frame());
         frame.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         frame.setTitle("AreYouSureYouWantToExit?");
         frame.setUndecorated(true);
         frame.setSize(500, 300);
-        frame.setLocationRelativeTo(rel_frame);
+        frame.setLocationRelativeTo(controller.get_frame());
         frame.setLayout(new BorderLayout());
         frame.add(panel, BorderLayout.CENTER);
 
@@ -28,7 +30,7 @@ public class areYouSureYouWantToExit {
         titelText2.setText("All unsaved progress will be lost.");
 
         No.addActionListener(e -> frame.dispose());
-        Yes.addActionListener(e -> System.exit(0));
+        Yes.addActionListener(e -> controller.stopProgram());
 
         frame.setVisible(true);
     }

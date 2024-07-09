@@ -2,10 +2,12 @@ package view;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
 import controller.Controller;
+import controller.Labyrinth;
 import model.Interactable.Interactable;
 import values.Direction;
 import model.Enemies.Enemies;
@@ -71,8 +73,8 @@ public class GraphicView extends JPanel implements view.View {
 
     /** calcutates the screensize */
     private void calcScreenSize(){
-        this.screenSizeX = _controller.getGraphicsConfiguration().getBounds().width;
-        this.screenSizeY = _controller.getGraphicsConfiguration().getBounds().height;
+        this.screenSizeX = _controller.get_frame().getGraphicsConfiguration().getBounds().width;
+        this.screenSizeY = _controller.get_frame().getGraphicsConfiguration().getBounds().height;
         calcOffSet();
     }
 
@@ -110,8 +112,8 @@ public class GraphicView extends JPanel implements view.View {
         if(_world.getSlashX() != -1 && _world.getSlashY() != -1){
             drawSlash(g, _world.getSlashX() * fieldDimension.width + _offSetX + fieldDimension.width / 2,
                     _world.getSlashY() * fieldDimension.height + _offSetY + fieldDimension.height / 2,
-                    ((6 - _world.getSlashCoolDown()) * fieldDimension.width) / 2,
-                    ((6 - _world.getSlashCoolDown()) * fieldDimension.height) / 2);
+                    ((int)((float) _world.getSlashCoolDown() / Labyrinth.SLASH_DELAY) * fieldDimension.width) * Labyrinth.SLASH_SIZE,
+                    ((int)((float) _world.getSlashCoolDown() / Labyrinth.SLASH_DELAY) * fieldDimension.height) * Labyrinth.SLASH_SIZE);
         }
 
         // draw player
@@ -177,7 +179,7 @@ public class GraphicView extends JPanel implements view.View {
 
         drawInteractable(g2d);
 
-        //Controls on the side [COMING SOON]
+        //TODO Controls on the side [COMING SOON]
         //g2d.drawString()
 
         //dispose to save resources
@@ -185,13 +187,20 @@ public class GraphicView extends JPanel implements view.View {
     }
 
     private void drawThePlayer(Graphics g, int posX, int posY, int width, int height) {
-        g.setColor(Color.WHITE);
-        g.fillRect(posX, posY, width, height);
-        g.setColor(Color.RED);
-        g.drawLine(player.x + _offSetX + (player.width/2),
-                player.y  + _offSetY + (player.height/2),
-                player.x + _offSetX + ((player.width + _world.getPlayerDirection().deltaX * fieldDimension.width)/2),
-                player.y  + _offSetY + ((player.height + _world.getPlayerDirection().deltaY * fieldDimension.height)/2));
+        if (_world.isPlayerDead()){
+            g.setColor(Color.RED);
+            int heightValue = (int)(((height / 10f) * (10 - _world.get_userDeathAnimationTimer())));
+            g.fillRect(posX, posY + heightValue, width, height - heightValue);
+        } else{
+            g.setColor(Color.WHITE);
+            g.fillRect(posX, posY, width, height);
+            g.setColor(Color.RED);
+            g.drawLine(player.x + _offSetX + (player.width/2),
+                    player.y  + _offSetY + (player.height/2),
+                    player.x + _offSetX + ((player.width + _world.getPlayerDirection().deltaX * fieldDimension.width)/2),
+                    player.y  + _offSetY + ((player.height + _world.getPlayerDirection().deltaY * fieldDimension.height)/2));
+        }
+
     }
 
     private void drawWall(Graphics2D g2d, int posX, int posY, int width, int height) {
@@ -249,21 +258,19 @@ public class GraphicView extends JPanel implements view.View {
             g.drawLine(posX + width / 5, (int) (posY + 0.6 * height), (int) (posX + 0.8 * width), (int) (posY + 0.6 * height));
             g.drawLine(posX + width / 5, posY + height / 5, (int) (posX + 0.4 * width), posY + height / 5);
             g.drawLine((int) (posX + 0.6 * width), posY + height / 5, (int) (posX + 0.8 * width), posY + height / 5);
-            if (_world.boundsChecker(posX, posY + height)) {
-                g.setColor(Color.blue);
-                String z = "z";
-                Font stringFont = new Font("SansSerif", Font.PLAIN, 10);
-                g.setFont(stringFont);
-                g.drawString(z, (int) (posX + 0.6 * width), (int) (posY - 0.25 * height));
-                Font stringFont1 = new Font("SansSerif", Font.PLAIN, 12);
-                g.setFont(stringFont1);
-                g.drawString(z, (int) (posX + 0.75 * width), (int) (posY - 0.60 * height));
-                Font stringFont2 = new Font("SansSerif", Font.PLAIN, 14);
-                g.setFont(stringFont2);
-                g.drawString(z, (int) (posX + 0.9 * width), (int) (posY - 0.95 * height));
-
-            }
-
+            /*Draw the ZZZZ
+            g.setColor(Color.blue);
+            String z = "z";
+            Font stringFont = new Font("SansSerif", Font.PLAIN, 10);
+            g.setFont(stringFont);
+            g.drawString(z, (int) (posX + 0.6 * width), (int) (posY - 0.25 * height));
+            Font stringFont1 = new Font("SansSerif", Font.PLAIN, 12);
+            g.setFont(stringFont1);
+            g.drawString(z, (int) (posX + 0.75 * width), (int) (posY - 0.60 * height));
+            Font stringFont2 = new Font("SansSerif", Font.PLAIN, 14);
+            g.setFont(stringFont2);
+            g.drawString(z, (int) (posX + 0.9 * width), (int) (posY - 0.95 * height));
+            */
         }
 
     }
@@ -280,7 +287,6 @@ public class GraphicView extends JPanel implements view.View {
     }
 
     private void drawPlayerTracking(Graphics g, int posX, int posY, int width, int height, Direction dir){
-        //g.drawRect(posX, posY, width, height);
         switch (dir){
             case LEFT:
                 g.drawPolygon(new Polygon(new int[]{posX, posX, posX - width / 2}, new int[]{posY, posY + height, posY + height / 2}, 3));
@@ -298,13 +304,12 @@ public class GraphicView extends JPanel implements view.View {
     }
 
     private void drawPathToEnd(Graphics g){
+        Map<coordinate, Direction> pathToEnd = _world.getPathToEnd();
+        if (pathToEnd.isEmpty()){return;}
         g.setColor(Color.GREEN);
-        for(coordinate p: _world.getPathToEnd().keySet()){
+        for(coordinate p: pathToEnd.keySet()){
             drawPlayerTracking(g, p.x() * fieldDimension.width + _offSetX + (fieldDimension.width / 4), p.y() * fieldDimension.height + _offSetY + (fieldDimension.height / 4),
-                    fieldDimension.width / 2, fieldDimension.height / 2, _world.getPathToEnd().get(p));
-            if (_world.getPathToEnd().get(p) == null){
-                System.out.println(p);
-            }
+                    fieldDimension.width / 2, fieldDimension.height / 2, pathToEnd.get(p));
         }
     }
 

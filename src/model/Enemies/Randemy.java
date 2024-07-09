@@ -81,7 +81,7 @@ public class Randemy implements Enemies{
             }
             //If the Randemy kills the Player (Moved onto the field of the player)
             if(_X == world.getPlayerX() && _Y == world.getPlayerY()){
-                world.levelReset();
+                world.playerDies();
             }
         }
     }

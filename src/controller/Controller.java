@@ -13,6 +13,7 @@ import java.util.List;
 import javax.swing.*;
 
 import GameWindow.*;
+import Sound.audioPlayer;
 import model.World;
 import values.Direction;
 import values.keyPressManager;
@@ -23,7 +24,9 @@ import view.View;
 /**
  * Our controller listens for key events on the main window.
  */
-public class Controller extends JFrame implements KeyListener, ActionListener, MouseListener {
+public class Controller implements KeyListener, ActionListener, MouseListener {
+
+    private JFrame _frame;
 
     /** The world that is updated upon every key press. */
     private World world;
@@ -48,6 +51,8 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
     private ActionMap _actionMapMenu;
 
     private Timer _clock;
+
+    private audioPlayer _audioPlayer;
     /**
      * Creates a new instance.
      *
@@ -56,23 +61,22 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
      * @param mMenu The MainMenu, that is presented at the start of the game and anytime someone presses ESC
      * @param mazeKeys The list of Actions that
      */
-    public Controller(World world, GraphicView gview, MainMenu mMenu, ArrayList<keyPresses> mazeKeys, ArrayList<keyPresses> menuKeys) {
+    public Controller(World world, GraphicView gview, MainMenu mMenu, ArrayList<keyPresses> mazeKeys, ArrayList<keyPresses> menuKeys, audioPlayer audioPlayer) {
+        this._frame = new JFrame();
         // Remember the world, gview, mainMenu, settings window,
         this.world = world;
         this.graphicView = gview;
         this.mainMenu = mMenu;
-        this.settings = new Settings(this, this);
+        //this.settings = new Settings(this, this);
+
+        this._audioPlayer = audioPlayer;
 
         this._mazeKeys = mazeKeys;
         this._menuKeys = menuKeys;
 
         setupInputActionMap();
 
-        mainContainer = this.getContentPane();
-        this.cards = new CardLayout();
-        this.mainContainer.setLayout(cards);
-        this.mainContainer.add("MENU", mainMenu.getMenuPanel());
-        this.mainContainer.add("GAME", graphicView);
+        setupLayout();
 
         //setup transparent / invisible Cursor for graphicView
         Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -82,14 +86,13 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
         graphicView.setCursor(transparentCursor);
 
         //Timer management
-        //TODO setup new constructor
         _clock = new Timer(Labyrinth.DELAY_MS, e -> doTick());
 
         // Listen for key events
-        addKeyListener(this);
+        _frame.addKeyListener(this);
         // Listen for mouse events.
         // Not used in the current implementation.
-        addMouseListener(this);
+        _frame.addMouseListener(this);
     }
 
     @Override
@@ -131,6 +134,7 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
                 break;
             case "Settings":
                 //settings
+                settings = new Settings(this._frame, this);
                 settings.enable();
                 break;
             case "Confirm":
@@ -183,6 +187,8 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
      */
     public void showMainMenu(){
         cards.show(mainContainer, "MENU");
+        _audioPlayer.stop();
+        world.set_isClockRunning(false);
         _clock.stop();
     }
 
@@ -191,11 +197,13 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
      */
     public void showGame(){
         cards.show(mainContainer, "GAME");
+        _audioPlayer.start();
+        world.set_isClockRunning(true);
         _clock.start();
     }
 
     /**
-     * Method to handle the different setting that can be selected.
+     * Method to handle the different settings that can be selected.
      */
     private void handleSettings(){
         if (settings.getDifficulty1().isSelected()){
@@ -213,8 +221,11 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
             Labyrinth.setLANGUAGE("french");
         }
         Labyrinth.setBORDERLESS(settings.getScreenMode1().isSelected());
-        settings.disable();
-        Labyrinth.reset();
+        _frame.dispose();
+        frameSetup();
+
+        Labyrinth.getAudioPlayer().setVolume((float) settings.getVolumeControl().getValue() / 100);
+        settings.getDialog().dispose();
     }
 
     ///////////////////////////// INPUT //////////////////////////////////////
@@ -266,5 +277,43 @@ public class Controller extends JFrame implements KeyListener, ActionListener, M
 
     public void doTick() {
         world.doTick();
+    }
+
+    //////////////////////// DISPOSAL /////////////////////
+    public void dispose(){
+        _frame.dispose();
+    }
+
+    ////////////////////////// STOPPING PROGRAM ///////////////////////
+
+    public void stopProgram(){
+        _audioPlayer.closeAudio();
+        System.exit(-1);
+    }
+
+    //////////////////////// GETTER ///////////////////////////
+
+    public JFrame get_frame(){
+        return _frame;
+    }
+
+    //////////////////////// FRAME SETUP /////////////////////
+
+    public void frameSetup(){
+        _frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        _frame.setTitle(Labyrinth.getTITEL());
+        _frame.setUndecorated(Labyrinth.getBORDERLESS());
+        _frame.setResizable(false);
+        _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setupLayout();
+        _frame.setVisible(true);
+    }
+
+    private void setupLayout(){
+        mainContainer = this._frame.getContentPane();
+        this.cards = new CardLayout();
+        this.mainContainer.setLayout(cards);
+        this.mainContainer.add("MENU", mainMenu.getMenuPanel());
+        this.mainContainer.add("GAME", graphicView);
     }
 }

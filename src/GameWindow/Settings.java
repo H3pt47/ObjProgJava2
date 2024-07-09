@@ -3,6 +3,7 @@ package GameWindow;
 import controller.Labyrinth;
 
 import javax.swing.*;
+import javax.swing.plaf.metal.MetalSliderUI;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
@@ -12,7 +13,7 @@ import java.awt.event.ActionListener;
 
 public class Settings {
 
-    private JDialog _dialog;
+    private final JDialog _dialog;
 
     private JPanel panel;
     private JLabel titelText1;
@@ -37,10 +38,12 @@ public class Settings {
     private JLabel screenMode;
     private JRadioButton fullscreen;
     private JRadioButton windowed;
+    private JLabel volume;
+    private JSlider volumeControl;
 
 
     public Settings(JFrame rel_frame, ActionListener actionListener) {
-        _dialog = new JDialog();
+        _dialog = new JDialog(rel_frame);
         _dialog.setTitle("Settings");
         _dialog.setUndecorated(true);
         _dialog.setSize(500, 500);
@@ -69,14 +72,13 @@ public class Settings {
         language_group.add(french);
 
         //Handle Preselection on basis of settings
-        if (Labyrinth.getLANGUAGE().equals("english")){
-            english.setSelected(true);
-        }
-        else if (Labyrinth.getLANGUAGE().equals("german")){
-            german.setSelected(true);
-        }
-        else{
-            french.setSelected(true);
+        switch(Labyrinth.getLANGUAGE()){
+            case "english": english.setSelected(true);
+            break;
+            case "german": german.setSelected(true);
+            break;
+            case "french": french.setSelected(true);
+            break;
         }
 
         ButtonGroup screen_group = new ButtonGroup();
@@ -89,6 +91,8 @@ public class Settings {
         else{
             windowed.setSelected(true);
         }
+        this.volumeControl.setValue((int) (Labyrinth.getAudioPlayer().get_volume() * 100));
+        volumeControl.setOpaque(false);
 
         confirm.addActionListener(actionListener);
         cancel.addActionListener(e -> this.disable());
@@ -132,5 +136,13 @@ public class Settings {
 
     public JRadioButton getScreenMode2() {
         return windowed;
+    }
+
+    public JSlider getVolumeControl() {
+        return volumeControl;
+    }
+
+    public JDialog getDialog() {
+        return _dialog;
     }
 }
