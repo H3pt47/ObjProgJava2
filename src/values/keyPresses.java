@@ -2,6 +2,7 @@ package values;
 
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 
 public class keyPresses{
 
@@ -80,11 +81,29 @@ public class keyPresses{
         return _seperatePresses;
     }
 
+    /**
+     * This Method is for getting a Dynamic String when changing the Input Key combination.
+     * @return If it only consists of modifier keys, it only prints those, with an additional "+" at the end. Otherwise, see toString().
+     */
+    public String DynamicToString() {
+        //For Dynamic String
+        if (isModifierKey()){
+            return InputEvent.getModifiersExText(_modifier) + "+";
+        }
+        return this.toString();
+    }
     @Override
-    public String toString() {
+    public String toString(){
         if (_modifier != 0){
             return InputEvent.getModifiersExText(_modifier) + "+" + KeyEvent.getKeyText(_value);
         }
         return KeyEvent.getKeyText(_value);
+    }
+
+    public boolean isModifierKey(){
+        return (_value == KeyEvent.VK_CONTROL ||
+                _value == KeyEvent.VK_SHIFT ||
+                _value == KeyEvent.VK_ALT ||
+                _value == KeyEvent.VK_ALT_GRAPH);
     }
 }

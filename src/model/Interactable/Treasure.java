@@ -30,7 +30,7 @@ public class Treasure implements Interactable {
                     world.setCanSeePath(true);
                 }
             };
-            new InteractableText(Labyrinth.getController().get_frame(), "You can now see the path.", "OK", r);
+            new InteractableText(Labyrinth.getController().get_frame(), "You can now see the path.", "OK", r, 400, 200);
         }
     }
 

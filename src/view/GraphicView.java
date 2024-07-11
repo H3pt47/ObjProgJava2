@@ -180,7 +180,7 @@ public class GraphicView extends JPanel implements view.View {
         drawInteractable(g2d);
 
         //TODO Controls on the side [COMING SOON]
-        //g2d.drawString()
+        g2d.drawString(_world.get_level().getName(), 0, 20);
 
         //dispose to save resources
         g2d.dispose();
@@ -281,6 +281,7 @@ public class GraphicView extends JPanel implements view.View {
             for(coordinate p:_world.getPaths().keySet()){
             drawPlayerTracking(g, p.x() * fieldDimension.width + _offSetX + (fieldDimension.width / 4), p.y() * fieldDimension.height + _offSetY + (fieldDimension.height / 4),
                     fieldDimension.width / 2, fieldDimension.height / 2, _world.getPaths().get(p).getDirection());
+            g.drawString(Integer.toString(_world.getPaths().get(p).getLength()), p.x() * fieldDimension.width + _offSetX, p.y() * fieldDimension.height + _offSetY);
 
             }
         }

@@ -314,6 +314,7 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
 
     public void stopProgram(){
         _audioPlayer.closeAudio();
+        this.dispose();
         System.exit(-1);
     }
 

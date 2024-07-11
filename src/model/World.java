@@ -256,6 +256,10 @@ public class World {
         return _userDeathAnimationTimer;
     }
 
+    public Level get_level(){
+        return _level;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Player Management
 
@@ -382,6 +386,7 @@ public class World {
         _endX = _level.getEndX();
         _endY = _level.getEndY();
         _walls = _level.getWalls();
+        _interactables = level.get_interactable();
         for (View v: views){
             v.newLevel(this);
         }
@@ -403,14 +408,12 @@ public class World {
         this._enemies = new CopyOnWriteArrayList<>(_level.getEnemies());
         _enemies.forEach(Enemies::reset);
         //Pathing
-        _paths.clear();
+        _paths = new HashMap<>();
         calcPaths();
         this._canSeePath = false;
 
         //KeyPresses
         _keyPressManager.voidStack();
-
-        _userInputEnabled = true;
 
         //Slash
         slashReset();
@@ -419,6 +422,8 @@ public class World {
         _interactables.values().forEach(Interactable::resetInteractions);
 
         updateViews();
+
+        _userInputEnabled = true;
     }
 
     ///////////////////// ENEMIES ////////////////////////

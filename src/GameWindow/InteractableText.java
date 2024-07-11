@@ -22,12 +22,12 @@ public class InteractableText {
      * @param buttonText The text of the Button.
      * @param action The Action the button performs. After completing the runnable, it disposes the Dialog.
      */
-    public InteractableText(JFrame relFrame, String text, String buttonText, Runnable action) {
+    public InteractableText(JFrame relFrame, String text, String buttonText, Runnable action, int width, int height) {
         Labyrinth.getController().pauseClock();
 
         _dialog = new JDialog(relFrame);
         _dialog.setLayout(new BorderLayout());
-        _dialog.setSize(500, 500);
+        _dialog.setSize(width, height);
         _dialog.add(_panel, BorderLayout.CENTER);
         _dialog.setUndecorated(true);
         _dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

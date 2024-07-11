@@ -56,6 +56,8 @@ public class Labyrinth {
     private static Controller controller;
     /** The Level generator that generates us a new level.*/
     private static LevelGenerator _generator;
+
+    private static Level _preloadedLevel;
     /** Arraylist that stores the keys that can be used in the maze.*/
     private static ArrayList<keyPresses> _mazeKeys;
     /** Arraylist that store the keys that can be used in the menu.*/
@@ -74,21 +76,13 @@ public class Labyrinth {
                 // set parameter
                 paramSetup();
 
-                // Create a new game world.
+                // Generate a new Level
                 _generator.generateMaze();
 
                 //world = new World(new Level(SIZE_X, SIZE_Y, "TEST", new ArrayList<>(), 0, 0, 10, 10, new ArrayList<>()));
-                world = new World(new Level(
-                        SIZE_X,
-                        SIZE_Y,
-                        "GENERATED",
-                        _generator.getWalls(),
-                        _generator.getPlayerX(),
-                        _generator.getPlayerY(),
-                        _generator.getEndX(),
-                        _generator.getEndY(),
-                        _generator.get_enemies(),
-                        _generator.get_interactables()));
+                world = new World(_generator.getLevel());
+
+                preGenerateLevel();
 
                 // Size of a field in the graphical view.
                 fieldDimensions = new Dimension(SCALE_X, SCALE_Y);
@@ -189,18 +183,17 @@ public class Labyrinth {
      *  Generates a new Level and Loads it into the world.
      */
     public static void loadNewLevel(){
+        world.newLevel(_preloadedLevel);
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                preGenerateLevel();
+            }
+        });
+    }
+
+    private static void preGenerateLevel(){
         _generator.generateMaze();
-        world.newLevel(new Level(
-                SIZE_X,
-                SIZE_Y,
-                "GENERATED",
-                _generator.getWalls(),
-                _generator.getPlayerX(),
-                _generator.getPlayerY(),
-                _generator.getEndX(),
-                _generator.getEndY(),
-                _generator.get_enemies(),
-                _generator.get_interactables()));
+        _preloadedLevel = _generator.getLevel();
     }
 
     /////////////////// GETTER AND SETTER METHODS ////////////////////////////////
@@ -212,6 +205,14 @@ public class Labyrinth {
 
     public static int getSCALE_Y(){
         return SCALE_Y;
+    }
+
+    public static int getSizeX(){
+        return SIZE_X;
+    }
+
+    public static int getSizeY(){
+        return SIZE_Y;
     }
 
     public static String getTITEL(){

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class changeKeyBindingsWindow {
 
-    private JDialog _dialog;
+    private final JDialog _dialog;
 
     private ArrayList<keyPresses> _mazeKeys;
 
@@ -51,13 +51,15 @@ public class changeKeyBindingsWindow {
 
             JLabel label = new JLabel(key.getKey());
             label.setFont(font);
+            label.setBackground(backGround);
+            label.setForeground(Color.WHITE);
 
             JTextField keyField = new JTextField(key.toString());
             keyField.setFont(font);
             keyField.setEditable(false);
             keyField.setBackground(backGround);
             keyField.setForeground(foreGround);
-            keyField.setSelectionColor(Color.WHITE);
+            keyField.setBorder(null);
             keyField.addKeyListener(new KeyAdapter() {
                 @Override
                 public void keyPressed(KeyEvent e) {
@@ -65,9 +67,10 @@ public class changeKeyBindingsWindow {
                     int modifiers = e.getModifiersEx();
                     key.setValue(keyCode);
                     key.setModifier(modifiers);
-                    keyField.setText(key.toString());
+                    keyField.setText(key.DynamicToString());
                     keyField.revalidate();
                     _keyPressPanel.revalidate();
+                    validKeyCheck();
                 }
             });
 
@@ -90,5 +93,9 @@ public class changeKeyBindingsWindow {
 
     public ArrayList<keyPresses> getKeyPresses(){
         return _mazeKeys;
+    }
+
+    private void validKeyCheck(){
+        confirm.setEnabled(_mazeKeys.stream().noneMatch(keyPresses::isModifierKey));
     }
 }

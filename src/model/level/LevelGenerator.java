@@ -18,6 +18,8 @@ import java.util.*;
  */
 
 public class LevelGenerator {
+    private static int _levelCounter = 0;
+
     private int width, height;
     private Cell[][] grid;
     private ArrayList<Wall> walls;
@@ -77,7 +79,7 @@ public class LevelGenerator {
         grid = new Cell[width][height];
         walls = new ArrayList<>();
         _enemies = new ArrayList<>();
-        _interactables.clear();
+        _interactables = new HashMap<>();
         _didSpawnMap = false;
         recalculatesHalls();
         recalculatesSpawnChance();
@@ -89,6 +91,8 @@ public class LevelGenerator {
      * Every tile is connected and Enemies are spawned in 3x3 Rooms, which are at least _hallCoolDown * 2 Tiles away. The end tile is chosen randomly.
      */
     public void generateMaze() {
+        _levelCounter++;
+
         resetGrid();
         Stack<Cell> stack = new Stack<>();
         Cell start = grid[random.nextInt(width / 2) * 2][random.nextInt(height / 2) * 2]; // Start from a random cell
@@ -282,7 +286,6 @@ public class LevelGenerator {
      * @param y The Y coordinate.
      */
     private void doHallSpawning(int x, int y){
-
         if (random.nextInt(0, _spawnChance) == 0){
             _enemies.add(new Dijkstremy(x, y, true, false));
         } else if(!_didSpawnMap){
@@ -316,6 +319,10 @@ public class LevelGenerator {
     }
     public Map<coordinate, Interactable> get_interactables(){
         return _interactables;
+    }
+
+    public Level getLevel(){
+        return new Level(Labyrinth.getSizeX(), Labyrinth.getSizeY(), "Level No. " + _levelCounter, this.getWalls(), playerX, playerY, endX, endY, _enemies, _interactables);
     }
 
 
