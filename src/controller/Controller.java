@@ -38,6 +38,8 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
     private MainMenu mainMenu;
     /** Setting menu where the user can change the settings.*/
     private Settings settings;
+
+    private changeKeyBindingsWindow _changeKeys;
     /** */
     private CardLayout cards;
     private Container mainContainer;
@@ -137,13 +139,25 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
                 settings = new Settings(this._frame, this);
                 settings.enable();
                 break;
-            case "Confirm":
+            case "Confirm Settings":
                 //settings confirm
                 handleSettings();
                 break;
             case "Exit":
                 //exit
                 new areYouSureYouWantToExit(this);
+                break;
+            case "Change KeyBinds":
+                //Change KeyBindsWindow on top of Settings
+                _changeKeys = new changeKeyBindingsWindow(settings.getDialog(), this, _mazeKeys);
+                _changeKeys.loadKeyBindings();
+                _changeKeys.enable();
+                break;
+            case "Confirm KeyBindings":
+                //Confirmation Button in the changeKeyBindingsWindow
+                _mazeKeys = _changeKeys.getKeyPresses();
+                this.setupInputActionMap();
+                _changeKeys.disable();
                 break;
         }
 
@@ -220,12 +234,16 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
         } else {
             Labyrinth.setLANGUAGE("french");
         }
-        Labyrinth.setBORDERLESS(settings.getScreenMode1().isSelected());
-        _frame.dispose();
-        frameSetup();
-
+        //BorderLess
+        if (Labyrinth.getBORDERLESS() != settings.getScreenMode1().isSelected()){
+            Labyrinth.setBORDERLESS(settings.getScreenMode1().isSelected());
+            _frame.dispose();
+            frameSetup();
+        }
+        //Audio
         Labyrinth.getAudioPlayer().setVolume((float) settings.getVolumeControl().getValue() / 100);
-        settings.getDialog().dispose();
+        //Close the Settings Dialog
+        settings.dispose();
     }
 
     ///////////////////////////// INPUT //////////////////////////////////////
@@ -277,6 +295,14 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
 
     public void doTick() {
         world.doTick();
+    }
+
+    public void pauseClock(){
+        _clock.stop();
+    }
+
+    public void unpauseClock(){
+        _clock.start();
     }
 
     //////////////////////// DISPOSAL /////////////////////

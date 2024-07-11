@@ -36,8 +36,8 @@ public class audioPlayer implements LineListener{
                 _clip.addLineListener(this);
                 _clip.open(_audioStream);
                 _control = (FloatControl) _clip.getControl(FloatControl.Type.MASTER_GAIN);
-                setVolume(this._volume);
                 this._isLoaded = true;
+                setVolume(this._volume);
             }
 
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {

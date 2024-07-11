@@ -1,11 +1,13 @@
 package GameWindow;
 
 import controller.Labyrinth;
+import values.keyPresses;
 
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalSliderUI;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 /**
  * The settings menu thats currently not working 100% :)
@@ -40,17 +42,21 @@ public class Settings {
     private JRadioButton windowed;
     private JLabel volume;
     private JSlider volumeControl;
+    private JLabel _keyBindingText;
+    private JButton _openKeyBinding;
+
 
 
     public Settings(JFrame rel_frame, ActionListener actionListener) {
         _dialog = new JDialog(rel_frame);
         _dialog.setTitle("Settings");
         _dialog.setUndecorated(true);
-        _dialog.setSize(500, 500);
+        _dialog.setSize(600, 600);
         _dialog.setLocationRelativeTo(rel_frame);
         _dialog.setLayout(new BorderLayout());
         _dialog.add(panel, BorderLayout.CENTER);
 
+        //Difficulty
         ButtonGroup difficulty_group = new ButtonGroup();
         difficulty_group.add(difficulty_1);
         difficulty_group.add(difficulty_2);
@@ -66,6 +72,7 @@ public class Settings {
             difficulty_3.setSelected(true);
         }
 
+        //Language
         ButtonGroup language_group = new ButtonGroup();
         language_group.add(english);
         language_group.add(german);
@@ -81,6 +88,7 @@ public class Settings {
             break;
         }
 
+        //Fullscreen
         ButtonGroup screen_group = new ButtonGroup();
         screen_group.add(fullscreen);
         screen_group.add(windowed);
@@ -91,8 +99,11 @@ public class Settings {
         else{
             windowed.setSelected(true);
         }
+        //Volume
         this.volumeControl.setValue((int) (Labyrinth.getAudioPlayer().get_volume() * 100));
-        volumeControl.setOpaque(false);
+
+        //KeyBinding Button
+        _openKeyBinding.addActionListener(actionListener);
 
         confirm.addActionListener(actionListener);
         cancel.addActionListener(e -> this.disable());
@@ -144,5 +155,9 @@ public class Settings {
 
     public JDialog getDialog() {
         return _dialog;
+    }
+
+    public void dispose(){
+        _dialog.dispose();
     }
 }

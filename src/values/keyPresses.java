@@ -1,5 +1,8 @@
 package values;
 
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+
 public class keyPresses{
 
     private final String _key;
@@ -75,5 +78,13 @@ public class keyPresses{
 
     public boolean seperatePresses(){
         return _seperatePresses;
+    }
+
+    @Override
+    public String toString() {
+        if (_modifier != 0){
+            return InputEvent.getModifiersExText(_modifier) + "+" + KeyEvent.getKeyText(_value);
+        }
+        return KeyEvent.getKeyText(_value);
     }
 }

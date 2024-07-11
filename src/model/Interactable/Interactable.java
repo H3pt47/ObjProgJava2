@@ -16,4 +16,6 @@ public interface Interactable {
     List<String> getInteractions();
     void setInteractions(List<String> interactions);
 
+    void resetInteractions();
+
 }

@@ -147,10 +147,10 @@ public class Labyrinth {
      */
     private static void registerMazeKeys() {
         _mazeKeys = new ArrayList<>();
-        _mazeKeys.add(new keyPresses("UP", KeyEvent.VK_UP, () -> world.keyPressed("UP"), () -> world.keyReleased("UP"), 0));
-        _mazeKeys.add(new keyPresses("DOWN", KeyEvent.VK_DOWN, () -> world.keyPressed("DOWN"), () -> world.keyReleased("DOWN"), 0));
-        _mazeKeys.add(new keyPresses("LEFT", KeyEvent.VK_LEFT, () -> world.keyPressed("LEFT"), () -> world.keyReleased("LEFT"), 0));
-        _mazeKeys.add(new keyPresses("RIGHT", KeyEvent.VK_RIGHT, () -> world.keyPressed("RIGHT"), () -> world.keyReleased("RIGHT"), 0));
+        _mazeKeys.add(new keyPresses("UP", KeyEvent.VK_W, () -> world.keyPressed("UP"), () -> world.keyReleased("UP"), 0));
+        _mazeKeys.add(new keyPresses("DOWN", KeyEvent.VK_S, () -> world.keyPressed("DOWN"), () -> world.keyReleased("DOWN"), 0));
+        _mazeKeys.add(new keyPresses("LEFT", KeyEvent.VK_A, () -> world.keyPressed("LEFT"), () -> world.keyReleased("LEFT"), 0));
+        _mazeKeys.add(new keyPresses("RIGHT", KeyEvent.VK_D, () -> world.keyPressed("RIGHT"), () -> world.keyReleased("RIGHT"), 0));
         _mazeKeys.add(new keyPresses("SLASH", KeyEvent.VK_SPACE, () -> world.keyPressed("SLASH"), () -> world.keyReleased("SLASH"), 0));
         _mazeKeys.add(new keyPresses("INTERACT", KeyEvent.VK_E, () -> world.keyPressed("INTERACT"), () -> world.keyReleased("INTERACT"), 0));
         _mazeKeys.add(new keyPresses("ESC", KeyEvent.VK_ESCAPE, () -> controller.showMainMenu(), 0));
@@ -182,7 +182,7 @@ public class Labyrinth {
         BORDERLESS = true;
         LANGUAGE = "english";
         _generator = new LevelGenerator(SIZE_X,SIZE_Y);
-        _audioPlayer = new audioPlayer("Sound/Project_3_downScale.wav", 0.5f);
+        _audioPlayer = new audioPlayer("Sound/Project_3_downScale.wav", 0.2f);
     }
 
     /**
@@ -248,5 +248,9 @@ public class Labyrinth {
 
     public static audioPlayer getAudioPlayer(){
         return _audioPlayer;
+    }
+
+    public static Controller getController(){
+        return controller;
     }
 }

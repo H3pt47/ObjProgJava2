@@ -415,6 +415,9 @@ public class World {
         //Slash
         slashReset();
 
+        //Interactables
+        _interactables.values().forEach(Interactable::resetInteractions);
+
         updateViews();
     }
 
