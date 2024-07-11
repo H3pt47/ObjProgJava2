@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 
@@ -33,13 +34,20 @@ public class GraphicView extends JPanel implements view.View {
     private int screenSizeX;
     private int screenSizeY;
 
+    /** The rectangle we're moving. */
+    private final Rectangle player = new Rectangle(1, 1);
+
+    /** The Wall */
+    private final Rectangle _wall = new Rectangle(1, 1);
+
+
     /**
      * The dimension, that regulates the scaling in the x and y coordinates:
      * Basically how big the fields are stretched
      */
     private Dimension fieldDimension;
 
-    /** The Controller to controll everything inside the Panel. */
+    /** The Controller to control everything inside the Panel. */
     private Controller _controller;
 
     /** The WORLD.*/
@@ -47,6 +55,11 @@ public class GraphicView extends JPanel implements view.View {
 
     /** The background. Everything that is not the world.*/
     private BufferedImage backGround;
+
+    private BufferedImage discoveredImage;
+    private Graphics2D discoveredImageGraphics;
+    private int[] _discovererParams;
+
 
     /**
      * The constructor of GraphicView
@@ -71,7 +84,7 @@ public class GraphicView extends JPanel implements view.View {
         repaint();
     }
 
-    /** calcutates the screensize */
+    /** calculates the screen size */
     private void calcScreenSize(){
         this.screenSizeX = _controller.get_frame().getGraphicsConfiguration().getBounds().width;
         this.screenSizeY = _controller.get_frame().getGraphicsConfiguration().getBounds().height;
@@ -82,13 +95,6 @@ public class GraphicView extends JPanel implements view.View {
         this._offSetX = (screenSizeX - this.WIDTH) / 2;
         this._offSetY = (screenSizeY - this.HEIGHT) / 2;
     }
-
-    /** The rectangle we're moving. */
-    private final Rectangle player = new Rectangle(1, 1);
-
-    /** The Wall */
-    private final Rectangle _wall = new Rectangle(1, 1);
-
     /**
      * Creates a new instance.
      */
@@ -96,11 +102,7 @@ public class GraphicView extends JPanel implements view.View {
     public void paint(Graphics g) {
         // Paint buffered background: Does it only at the first update or when some parameter changes,
         // then it loads it out of memory, to save some resources
-        if (backGround == null || backGround.getWidth() != this.screenSizeX || backGround.getHeight() != this.screenSizeY) {
-            drawBackGround();
-        }
-        //actually drawing the background
-        g.drawImage(backGround, 0, 0, screenSizeX, screenSizeY, null);
+        drawBackGroundFromBuffer(g);
 
         //drawPlayerTrackings(g);
         if(_world.getCanSeePath()){
@@ -108,16 +110,22 @@ public class GraphicView extends JPanel implements view.View {
         }
 
         drawEnemies(g);
-
+        //drawSlash
         if(_world.getSlashX() != -1 && _world.getSlashY() != -1){
+            float slashFactor = (Labyrinth.SLASH_DELAY - _world.getSlashCoolDown()) / ((float) Labyrinth.SLASH_DELAY);
             drawSlash(g, _world.getSlashX() * fieldDimension.width + _offSetX + fieldDimension.width / 2,
                     _world.getSlashY() * fieldDimension.height + _offSetY + fieldDimension.height / 2,
-                    ((int)((float) _world.getSlashCoolDown() / Labyrinth.SLASH_DELAY) * fieldDimension.width) * Labyrinth.SLASH_SIZE,
-                    ((int)((float) _world.getSlashCoolDown() / Labyrinth.SLASH_DELAY) * fieldDimension.height) * Labyrinth.SLASH_SIZE);
+                    (int)(slashFactor * fieldDimension.width * Labyrinth.SLASH_SIZE),
+                    (int)(slashFactor * fieldDimension.height * Labyrinth.SLASH_SIZE));
         }
 
         // draw player
         drawThePlayer(g, player.x + _offSetX, player.y + _offSetY, player.width, player.height);
+
+        if (discoveredImage == null){
+            drawDiscoverInit();
+        }
+        drawDiscover(g);
     }
 
     @Override
@@ -137,23 +145,10 @@ public class GraphicView extends JPanel implements view.View {
         this.HEIGHT = world.getHeight() * fieldDimension.height;
         calcOffSet();
         drawBackGround();
+        drawDiscoverInit();
         update(world);
     }
 
-    private void paintTheFrame(Graphics2D g) {
-        for (int i = 0; i < _world.getWidth() + 2; i++) {
-            //BORDER TOP
-            drawWall(g, ((i - 1) * fieldDimension.width + _offSetX), (_offSetY - fieldDimension.height), fieldDimension.width, fieldDimension.height);
-            //BORDER BOTTOM
-            drawWall(g, ((i - 1) * fieldDimension.width + _offSetX), (_offSetY + (fieldDimension.height * (_world.getHeight()))), fieldDimension.width, fieldDimension.height);
-        }
-        for (int i = 0; i < _world.getHeight(); i++) {
-            //BORDER LEFT
-            drawWall(g, _offSetX - fieldDimension.width, ((i * fieldDimension.height) + _offSetY), fieldDimension.width, fieldDimension.height);
-            //BORDER RIGHT
-            drawWall(g, (_offSetX + (fieldDimension.width * _world.getWidth())), ((i * fieldDimension.height) + _offSetY), fieldDimension.width, fieldDimension.height);
-        }
-    }
 
     private void drawBackGround() {
         backGround = new BufferedImage(screenSizeX, screenSizeY, BufferedImage.TYPE_INT_ARGB);
@@ -184,6 +179,29 @@ public class GraphicView extends JPanel implements view.View {
 
         //dispose to save resources
         g2d.dispose();
+    }
+
+    private void drawBackGroundFromBuffer(Graphics g) {
+        if (backGround == null || backGround.getWidth() != this.screenSizeX || backGround.getHeight() != this.screenSizeY) {
+            drawBackGround();
+        }
+        //actually drawing the background
+        g.drawImage(backGround, 0, 0, screenSizeX, screenSizeY, null);
+    }
+
+    private void paintTheFrame(Graphics2D g) {
+        for (int i = 0; i < _world.getWidth() + 2; i++) {
+            //BORDER TOP
+            drawWall(g, ((i - 1) * fieldDimension.width + _offSetX), (_offSetY - fieldDimension.height), fieldDimension.width, fieldDimension.height);
+            //BORDER BOTTOM
+            drawWall(g, ((i - 1) * fieldDimension.width + _offSetX), (_offSetY + (fieldDimension.height * (_world.getHeight()))), fieldDimension.width, fieldDimension.height);
+        }
+        for (int i = 0; i < _world.getHeight(); i++) {
+            //BORDER LEFT
+            drawWall(g, _offSetX - fieldDimension.width, ((i * fieldDimension.height) + _offSetY), fieldDimension.width, fieldDimension.height);
+            //BORDER RIGHT
+            drawWall(g, (_offSetX + (fieldDimension.width * _world.getWidth())), ((i * fieldDimension.height) + _offSetY), fieldDimension.width, fieldDimension.height);
+        }
     }
 
     private void drawThePlayer(Graphics g, int posX, int posY, int width, int height) {
@@ -230,7 +248,6 @@ public class GraphicView extends JPanel implements view.View {
     }
 
     private void drawEnemy(Graphics g, int posX, int posY, int width, int height, Enemies e) {
-
         if (e.isActivated() && !e.isDead()) {
             g.setColor(Color.RED);
             g.drawRect(posX, posY, width, height);
@@ -325,5 +342,29 @@ public class GraphicView extends JPanel implements view.View {
             i = _world.get_interactables().get(c);
             i.draw(g, c.x() * fieldDimension.width + _offSetX, c.y() * fieldDimension.height + _offSetY, fieldDimension.width, fieldDimension.height);
         }
+    }
+
+    private void drawDiscoverInit(){
+        discoveredImage = new BufferedImage(screenSizeX, screenSizeY, BufferedImage.TYPE_INT_ARGB);
+        discoveredImageGraphics = discoveredImage.createGraphics();
+
+        discoveredImageGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        discoveredImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
+
+        discoveredImageGraphics.setColor(Color.BLACK);
+        discoveredImageGraphics.fillRect(_offSetX - fieldDimension.width, _offSetY - fieldDimension.height, fieldDimension.width * (this.WIDTH + 2), fieldDimension.height * (this.HEIGHT + 2));
+
+        discoveredImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OUT));
+    }
+
+    private void drawDiscover(Graphics g){
+        discoveredImageGraphics.fill(getCenteredEllipse(player.x + _offSetX + fieldDimension.width / 2, player.y + _offSetY + fieldDimension.height / 2, Labyrinth.getDiscoveryReach() * fieldDimension.width, Labyrinth.getDiscoveryReach() * fieldDimension.height));
+
+        g.drawImage(discoveredImage,0, 0, null);
+    }
+
+    private Ellipse2D getCenteredEllipse(int x, int y, int width, int height){
+        return new Ellipse2D.Double(x - (width / 2), y - (height / 2), width, height);
     }
 }

@@ -62,6 +62,8 @@ public class World {
     //Boolean to recalculate the pathfinding
     private boolean _didPlayerMove = false;
 
+    private boolean _isCurrentlyPathfinding = false;
+
     //Slashing
     private int slashX;
     private int slashY;
@@ -455,10 +457,14 @@ public class World {
      */
     private void calcPaths(){
         if (_didPlayerMove){
+            _isCurrentlyPathfinding = true;
             recalculatePathsExtended();
+            _isCurrentlyPathfinding = false;
         } else if (_paths.isEmpty()){
+            _isCurrentlyPathfinding = true;
             initiatePaths();
             recalculatePathsExtended();
+            _isCurrentlyPathfinding = false;
         }
 
     }
@@ -530,20 +536,10 @@ public class World {
      */
     public Map<coordinate, Direction> getPathToEnd(){
         Map<coordinate, Direction> pathToEnd = new HashMap<>();
-        if (_playerX == _endX && _playerY == _endY){return pathToEnd;}
+        if (_playerX == _endX && _playerY == _endY || _paths.isEmpty() || _isCurrentlyPathfinding){return pathToEnd;}
         coordinate prevPos = new coordinate(_endX, _endY);
         coordinate currentPos = new coordinate(_endX + _paths.get(prevPos).getDirection().deltaX, _endY + _paths.get(prevPos).getDirection().deltaY);
         while (currentPos.x() != _playerX || currentPos.y() != _playerY){
-            //DEBUGGING
-            if (_paths.get(prevPos) == null){
-                System.out.println(prevPos);
-                System.out.println(currentPos);
-                for (coordinate c : _paths.keySet()){
-                    System.out.println(c);
-                    System.out.print(_paths.get(c));
-                }
-                System.out.println(pathToEnd);
-            }
             pathToEnd.put(currentPos, Direction.getOppositeDirection(_paths.get(prevPos).getDirection()));
             prevPos = currentPos;
             currentPos = new coordinate(

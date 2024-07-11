@@ -5,11 +5,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
-import javax.swing.*;
-
 import GameWindow.*;
 import Sound.audioPlayer;
-import values.Direction;
 import model.*;
 import model.level.Level;
 import model.level.LevelGenerator;
@@ -39,9 +36,11 @@ public class Labyrinth {
     private static int SIZE_X;
     /** Y-coordinate sice of the world.*/
     private static int SIZE_Y;
-    public static int DELAY_MS = 150;
+    public static int DELAY_MS = 100;
     public static int SLASH_DELAY = 5;
     public static int SLASH_SIZE = 5;
+
+    private static int DISCOVERY_REACH = 8;
     /** Main menu of the world */
     private static MainMenu mainMenu;
     /** The WORLD. */
@@ -213,6 +212,10 @@ public class Labyrinth {
 
     public static int getSizeY(){
         return SIZE_Y;
+    }
+
+    public static int getDiscoveryReach(){
+        return DISCOVERY_REACH;
     }
 
     public static String getTITEL(){
