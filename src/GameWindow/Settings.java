@@ -1,13 +1,11 @@
 package GameWindow;
 
 import controller.Labyrinth;
-import values.keyPresses;
 
 import javax.swing.*;
-import javax.swing.plaf.metal.MetalSliderUI;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 /**
  * The settings menu thats currently not working 100% :)
@@ -40,12 +38,17 @@ public class Settings {
     private JLabel screenMode;
     private JRadioButton fullscreen;
     private JRadioButton windowed;
-    private JLabel volume;
-    private JSlider volumeControl;
+
+    //KeyBinding
     private JLabel _keyBindingText;
     private JButton _openKeyBinding;
 
-
+    //Volume
+    private JLabel _gameVolume;
+    private JLabel _menuVolume;
+    private JSlider _menuVolumeControl;
+    private JSlider _gameVolumeControl;
+    private float _menuVolumeControlValue;
 
     public Settings(JFrame rel_frame, ActionListener actionListener) {
         _dialog = new JDialog(rel_frame);
@@ -100,7 +103,11 @@ public class Settings {
             windowed.setSelected(true);
         }
         //Volume
-        this.volumeControl.setValue((int) (Labyrinth.getAudioPlayer().get_volume() * 100));
+        this._gameVolumeControl.setValue((int) (Labyrinth.getGameAudioPlayer().get_volume() * 100));
+
+        this._menuVolumeControlValue = Labyrinth.getMenuAudioPlayer().get_volume();
+        this._menuVolumeControl.setValue((int) (_menuVolumeControlValue * 100));
+        this._menuVolumeControl.addChangeListener((l) -> Labyrinth.getMenuAudioPlayer().setVolume(((float)_menuVolumeControl.getValue()) / 100));
 
         //KeyBinding Button
         _openKeyBinding.addActionListener(actionListener);
@@ -149,15 +156,20 @@ public class Settings {
         return windowed;
     }
 
-    public JSlider getVolumeControl() {
-        return volumeControl;
-    }
-
     public JDialog getDialog() {
         return _dialog;
     }
 
+    public JSlider get_menuVolumeControl(){
+        return _menuVolumeControl;
+    }
+
+    public JSlider get_gameVolumeControl(){
+        return _gameVolumeControl;
+    }
+
     public void dispose(){
+        Labyrinth.getMenuAudioPlayer().setVolume(_menuVolumeControlValue);
         _dialog.dispose();
     }
 }

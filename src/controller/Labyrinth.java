@@ -62,7 +62,8 @@ public class Labyrinth {
     /** Arraylist that store the keys that can be used in the menu.*/
     private static ArrayList<keyPresses> _menuKeys;
 
-    private static audioPlayer _audioPlayer;
+    private static audioPlayer _gameAudioPlayer;
+    private static audioPlayer _menuAudioPlayer;
 
     /**
      * Main method that connects everything and runs the game.
@@ -122,7 +123,7 @@ public class Labyrinth {
      * @param mainMenu
      */
     private static void setupController(World world, GraphicView gview, MainMenu mainMenu){
-        controller = new Controller(world, gview, mainMenu, _mazeKeys, _menuKeys, _audioPlayer);
+        controller = new Controller(world, gview, mainMenu, _mazeKeys, _menuKeys, _menuAudioPlayer, _gameAudioPlayer);
         controller.frameSetup();
 
         //add controller to the action listener in menu
@@ -151,7 +152,7 @@ public class Labyrinth {
         _mazeKeys.add(new keyPresses("NEW_LEVEL", KeyEvent.VK_Q, Labyrinth::loadNewLevel, 0));
         _mazeKeys.add(new keyPresses("AUTO_SOLVE", KeyEvent.VK_S, () -> world.autoSolve(), InputEvent.CTRL_DOWN_MASK));
         _mazeKeys.add(new keyPresses("PRINT_INPUT_STACK", KeyEvent.VK_K, () -> System.out.println(world.get_keyPressManager().getStack().toString()), 0));
-        _mazeKeys.add(new keyPresses("RESTART_SONG", KeyEvent.VK_L, () -> _audioPlayer.startFromBeginning(), 0));
+        _mazeKeys.add(new keyPresses("RESTART_SONG", KeyEvent.VK_L, () -> _gameAudioPlayer.startFromBeginning(), 0));
     }
 
     /**
@@ -175,7 +176,8 @@ public class Labyrinth {
         BORDERLESS = true;
         LANGUAGE = "english";
         _generator = new LevelGenerator(SIZE_X,SIZE_Y);
-        _audioPlayer = new audioPlayer("Sound/Project_3_downScale.wav", 0.2f);
+        _gameAudioPlayer = new audioPlayer("Sound/Project_3_downScale.wav", 0.2f);
+        _menuAudioPlayer = new audioPlayer("Sound/PROJECT008_improv.wav", 0.2f);
     }
 
     /**
@@ -250,8 +252,12 @@ public class Labyrinth {
         return _mazeKeys;
     }
 
-    public static audioPlayer getAudioPlayer(){
-        return _audioPlayer;
+    public static audioPlayer getGameAudioPlayer(){
+        return _gameAudioPlayer;
+    }
+
+    public static audioPlayer getMenuAudioPlayer(){
+        return _menuAudioPlayer;
     }
 
     public static Controller getController(){

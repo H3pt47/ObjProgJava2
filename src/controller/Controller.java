@@ -15,8 +15,6 @@ import javax.swing.*;
 import GameWindow.*;
 import Sound.audioPlayer;
 import model.World;
-import values.Direction;
-import values.keyPressManager;
 import values.keyPresses;
 import view.GraphicView;
 import view.View;
@@ -54,7 +52,8 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
 
     private Timer _clock;
 
-    private audioPlayer _audioPlayer;
+    private audioPlayer _gameAudioPlayer;
+    private audioPlayer _menuAudioPlayer;
     /**
      * Creates a new instance.
      *
@@ -63,7 +62,7 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
      * @param mMenu The MainMenu, that is presented at the start of the game and anytime someone presses ESC
      * @param mazeKeys The list of Actions that
      */
-    public Controller(World world, GraphicView gview, MainMenu mMenu, ArrayList<keyPresses> mazeKeys, ArrayList<keyPresses> menuKeys, audioPlayer audioPlayer) {
+    public Controller(World world, GraphicView gview, MainMenu mMenu, ArrayList<keyPresses> mazeKeys, ArrayList<keyPresses> menuKeys, audioPlayer menuAudioPlayer, audioPlayer gameAudioPlayer) {
         this._frame = new JFrame();
         // Remember the world, gview, mainMenu, settings window,
         this.world = world;
@@ -71,7 +70,8 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
         this.mainMenu = mMenu;
         //this.settings = new Settings(this, this);
 
-        this._audioPlayer = audioPlayer;
+        this._gameAudioPlayer = gameAudioPlayer;
+        this._menuAudioPlayer = menuAudioPlayer;
 
         this._mazeKeys = mazeKeys;
         this._menuKeys = menuKeys;
@@ -201,7 +201,8 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
      */
     public void showMainMenu(){
         cards.show(mainContainer, "MENU");
-        _audioPlayer.stop();
+        _gameAudioPlayer.stop();
+        _menuAudioPlayer.start();
         world.set_isClockRunning(false);
         _clock.stop();
     }
@@ -211,7 +212,8 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
      */
     public void showGame(){
         cards.show(mainContainer, "GAME");
-        _audioPlayer.start();
+        _menuAudioPlayer.stop();
+        _gameAudioPlayer.start();
         world.set_isClockRunning(true);
         _clock.start();
     }
@@ -241,7 +243,8 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
             frameSetup();
         }
         //Audio
-        Labyrinth.getAudioPlayer().setVolume((float) settings.getVolumeControl().getValue() / 100);
+        Labyrinth.getGameAudioPlayer().setVolume((float) settings.get_gameVolumeControl().getValue() / 100);
+        Labyrinth.getMenuAudioPlayer().setVolume((float) settings.get_menuVolumeControl().getValue() / 100);
         //Close the Settings Dialog
         settings.dispose();
     }
@@ -313,7 +316,7 @@ public class Controller implements KeyListener, ActionListener, MouseListener {
     ////////////////////////// STOPPING PROGRAM ///////////////////////
 
     public void stopProgram(){
-        _audioPlayer.closeAudio();
+        _gameAudioPlayer.closeAudio();
         this.dispose();
         System.exit(-1);
     }
